@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试助手Agent（MS-Agent-Lite） · 面板</title>
+<style>
+  :root{
+    --bg:#f2f4f8; --card:#fff; --ink:#1f2937; --ink-soft:#4b5563; --ink-mute:#6b7280;
+    --line:#e5e7eb; --accent:#2563eb; --accent-2:#06b6d4; --accent-soft:#eff6ff;
+    --ok:#059669; --err:#dc2626; --warn:#d97706; --muted:#94a3b8; --topbar:#111827; --topbar-fg:#f9fafb;
+    --radius:12px; --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7}
+  button{font-family:inherit}
+
+  /* 顶栏 */
+  .topbar{position:sticky;top:0;z-index:50;height:52px;background:var(--topbar);color:var(--topbar-fg);
+    display:flex;align-items:center;gap:12px;padding:0 18px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .topbar h1{font-size:15px;margin:0;font-weight:700}
+  .topbar .tag{font-size:12px;color:#93c5fd;background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);
+    padding:2px 10px;border-radius:20px}
+  .topbar .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .topbar button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;
+    padding:5px 12px;border-radius:8px;font-size:12.5px;cursor:pointer}
+  .topbar button:hover{background:rgba(255,255,255,.2)}
+
+  /* 布局 */
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+  .card h2{margin:0 0 14px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .card h2 .step-no{flex:0 0 22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .card h2 .hint{font-size:11.5px;color:var(--ink-mute);font-weight:400;margin-left:4px}
+
+  /* 表单 */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12.5px;color:var(--ink-soft);font-weight:600}
+  input[type=text],select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+    font-size:13.5px;font-family:inherit;background:#fafbfc;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+  textarea{resize:vertical;min-height:90px;line-height:1.6}
+  .full{grid-column:1/-1}
+
+  /* 上传 */
+  .drop{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--ink-mute);
+    cursor:pointer;font-size:13px;background:#fafbfc;transition:all .15s}
+  .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+  .drop b{color:var(--accent)}
+  .file-meta{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12.5px;color:var(--ink-soft);flex-wrap:wrap}
+  .file-meta .rm{color:var(--err);cursor:pointer;border:none;background:none;font-size:12px;padding:0}
+  .resume-preview{margin-top:10px;border:1px solid var(--line);border-radius:8px;background:#f8fafc;
+    padding:10px 12px;font-size:12px;color:var(--ink-soft);max-height:160px;overflow:auto;white-space:pre-wrap;display:none}
+  .hint-line{font-size:11.5px;color:var(--ink-mute);margin-top:4px}
+  /* 上传等重要的操作提示：与普通提示/输入框内占位词在视觉上明显区分（浅黄底 + 深色边框） */
+  .upload-tip{margin-top:8px;padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--warn);
+    border-radius:8px;color:#78350f;font-size:12px;line-height:1.8}
+  .upload-tip b{color:#92400e}
+
+  /* ---------- 必填/可选标注（R9：必选红、可选灰、视觉区分） ---------- */
+  .field-label{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+  .req{display:inline-flex;align-items:center;padding:1px 8px;border-radius:10px;font-size:10.5px;font-weight:700;
+    color:#fff;background:var(--err);vertical-align:1px;letter-spacing:.5px}
+  .opt{display:inline-flex;margin-left:2px;font-size:11px;color:var(--ink-mute);font-weight:400}
+  /* 必填未填的红字提示（区别于灰色可选说明） */
+  .need{color:var(--err);font-size:11.5px;font-weight:600}
+  /* ---------- 长文本输入（R2：高度为常规 3 倍，宽度不变） ---------- */
+  textarea.tall{min-height:270px}
+  /* ---------- 生成进度条（R3：8 步固定权重） ---------- */
+  .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .progress-track{flex:1;height:14px;border:1px solid var(--line);border-radius:8px;background:#f1f5f9;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s ease;border-radius:8px}
+  .progress-pct{font-size:12px;font-weight:700;color:var(--accent);min-width:44px;text-align:right}
+  /* ---------- 成本参考（R11：用户界面简洁成本指标） ---------- */
+  .cost-tip{margin-top:8px;font-size:11.5px;color:var(--ink-mute)}
+  .cost-tip b{color:var(--accent)}
+
+  /* 参考网址列表 */
+  .url-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .url-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;
+    padding:5px 10px;font-size:12.5px;background:#fafbfc}
+  .url-item .u{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-soft)}
+  .url-item .rm{color:var(--err);cursor:pointer;border:none;background:none;font-size:13px;padding:0}
+
+  /* 内容审核结果区 */
+  .check-box{margin-top:12px;border:1px solid var(--line);border-left:3px solid var(--ok);
+    border-radius:8px;background:#f8fafc;padding:10px 14px}
+  .check-box.warn{border-left-color:var(--warn)}
+
+  /* 按钮 */
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13.5px;
+    font-weight:600;cursor:pointer;transition:filter .15s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{background:#9ca3af;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--ink-soft);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.danger{background:#fff;color:var(--err);border:1px solid #fca5a5}
+  .btn.sm{padding:4px 10px;font-size:12px;border-radius:6px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .grow{flex:1;min-width:0}
+
+  /* 状态徽标 */
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:16px;font-size:12px;font-weight:600}
+  .badge.idle{background:#f1f5f9;color:var(--ink-mute)}
+  .badge.run{background:#dbeafe;color:var(--accent)}
+  .badge.ok{background:#d1fae5;color:var(--ok)}
+  .badge.fail{background:#fee2e2;color:var(--err)}
+  .badge.warn{background:#fef3c7;color:var(--warn)}
+
+  /* API Key 一键区状态条 */
+  .key-status{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;border:1px solid var(--line);background:#f8fafc}
+  .key-status.ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+  .key-status.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+  .key-status.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+  .err-inp{border-color:var(--err)!important;background:#fef2f2}
+  #cardApiKey{border-color:var(--line);transition:border-color .3s}
+  #cardApiKey.flash{border-color:var(--err);border-width:2px}
+
+  /* ---------- 配置三步引导条 ---------- */
+  .flow-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .flow-step{flex:1;min-width:160px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;
+    background:#f8fafc;font-size:11.5px;color:var(--ink-mute);line-height:1.6}
+  .flow-step b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:1px}
+  .flow-step .fs-no{display:inline-flex;width:18px;height:18px;border-radius:50%;background:var(--accent);
+    color:#fff;font-size:11px;font-weight:700;align-items:center;justify-content:center;margin-right:5px;vertical-align:1px}
+  .flow-step .fs-no.alt{background:var(--ink-mute)}
+  .flow-step.optional{background:#fffbeb;border-color:#fde68a}
+  .flow-step.done{border-color:#bbf7d0;background:#f0fdf4}
+  .flow-step.done b{color:#166534}
+
+  /* ---------- 配置字段分组卡片 ---------- */
+  .field-group{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px;background:#fbfcfe}
+  .field-group .fg-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;
+    color:var(--ink-mute);margin-bottom:11px}
+  .fg-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:14px;font-size:12px;font-weight:700}
+  .fg-badge.key{background:#dbeafe;color:#1d4ed8}
+  .fg-badge.cap{background:#fef3c7;color:#b45309}
+  .fg-badge.id{background:#e2e8f0;color:#475569}
+
+  /* ---------- 概念类比提示（配置名称 vs 模型名） ---------- */
+  .analogy{margin-top:8px;padding:8px 12px;background:#f0f7ff;border:1px solid #dbeafe;border-left:3px solid var(--accent);
+    border-radius:8px;font-size:12px;color:var(--ink-soft);line-height:1.8}
+  .analogy b{color:var(--accent)}
+  .analogy code{background:#eef1f5;padding:1px 5px;border-radius:4px;font-size:11.5px;color:#c0341d}
+
+  /* ---------- 提示卡（双模型引导等） ---------- */
+  .tip-card{margin-top:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid var(--ok);
+    border-radius:8px;font-size:12px;color:#166534;line-height:1.8}
+  .spin{display:inline-block;width:10px;height:10px;border:2px solid rgba(37,99,235,.25);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* 文件列表 */
+  .files{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:12px}
+  .file-row{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;
+    padding:7px 10px;font-size:12.5px;background:#fafbfc}
+  .file-row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file-row .st{flex:0 0 auto;font-size:12px;font-weight:600}
+  .file-row .st.done{color:var(--ok)}
+  .file-row .st.failed{color:var(--err)}
+  .file-row .st.running{color:var(--accent)}
+  .file-row .st.idle{color:var(--ink-mute)}
+
+  /* 日志 */
+  .logbox{margin-top:12px;background:#111827;color:#d1d5db;border-radius:8px;padding:10px 12px;
+    font-size:12px;line-height:1.7;height:160px;overflow-y:auto;font-family:Consolas,"Courier New",monospace;white-space:pre-wrap}
+  .logbox .ll{color:#93c5fd}
+
+  /* 结果 */
+  .result-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .preview-box{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .preview-box iframe{width:100%;height:560px;border:none;display:block}
+  .preview-empty{padding:40px;text-align:center;color:var(--ink-mute);font-size:13px}
+
+  /* 设置抽屉 */
+  .mask{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:90;display:none}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:460px;max-width:94vw;background:#fff;z-index:91;
+    transform:translateX(105%);transition:transform .28s ease;box-shadow:-8px 0 30px rgba(0,0,0,.2);
+    display:flex;flex-direction:column}
+  .drawer.open{transform:none}
+  .drawer-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--topbar);color:#fff}
+  .drawer-head h3{margin:0;font-size:14.5px}
+  .drawer-close{margin-left:auto;background:none;border:none;color:#9ca3af;font-size:20px;cursor:pointer;line-height:1}
+  .drawer-close:hover{color:#fff}
+  .drawer-body{padding:16px;overflow-y:auto;flex:1}
+  .prov-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fafbfc}
+  .prov-item .pname{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px}
+  .prov-item .pmeta{font-size:12px;color:var(--ink-mute);margin-top:3px;word-break:break-all}
+  .prov-item .pact{margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .toggle{position:relative;width:34px;height:18px;background:#d1d5db;border-radius:10px;border:none;cursor:pointer;flex:0 0 auto}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+  .toggle.on{background:var(--ok)}
+  .toggle.on::after{left:18px}
+  .drawer-body h4{font-size:13px;margin:18px 0 8px;color:var(--ink-soft)}
+  .drawer-body .field{margin-bottom:10px}
+  .mini{margin:4px 0 0;font-size:11.5px}
+  .mini.ok{color:var(--ok)} .mini.err{color:var(--err)}
+
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#111827;color:#fff;
+    padding:9px 18px;border-radius:8px;font-size:13px;z-index:120;display:none;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+  @media (max-width:720px){ .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>面试助手Agent（MS-Agent）</h1>
+  <span class="tag">简历 + 岗位 JD → 面试准备材料（纯文本版）</span>
+  <div class="right">
+    <span id="provStatus" style="font-size:12px;color:#9ca3af"></span>
+    <button id="btnSettings">⚙ 高级设置</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 页首提示：感谢 + 反馈渠道 -->
+  <div style="background:linear-gradient(135deg,#eff6ff,#fff);border:1px solid #bfdbfe;border-radius:var(--radius);padding:12px 18px;margin-bottom:16px;font-size:12.5px;color:#1e3a8a;line-height:1.8">
+    感谢使用 <b>MS-Agent（纯文本版）</b>，希望能对你的面试有所帮助。只需配置<b>一个文本模型</b>即可完整使用本版，生成的面试材料质量与视觉版相当，无需视觉模型。使用中如有问题或建议，欢迎随时联系作者：<a href="mailto:llxstupg@163.com" style="color:var(--accent);font-weight:600">llxstupg@163.com</a>
+  </div>
+
+  <!-- ① API Key（一站式第一步：三步引导 + 多模型管理入口） -->
+  <section class="card" id="cardApiKey">
+    <h2><span class="step-no">1</span>大模型 API Key <span class="hint">MS-Agent-Lite 调用大模型的"钥匙"，怎么领见《使用指南.html》第 2 步</span></h2>
+    <div class="key-status warn" id="keyStatus">正在检查配置…</div>
+
+    <!-- 配置逻辑引导条：钥匙 → 能力 → 保存验证 → 高级设置（可选） -->
+    <div class="flow-steps">
+      <div class="flow-step"><b><span class="fs-no">1</span>粘贴钥匙</b>选平台 → 粘贴 API Key（下方第 1 组）</div>
+      <div class="flow-step"><b><span class="fs-no">2</span>选择能力</b>告诉 MS-Agent-Lite 你的模型能做什么（不懂选「纯文本」即可）</div>
+      <div class="flow-step"><b><span class="fs-no">3</span>保存验证</b>点「💾 保存并自检」，状态条变绿即成功</div>
+      <div class="flow-step optional"><b><span class="fs-no alt">4</span>高级设置（可选）</b>多个模型 → 右上「⚙ 高级设置」</div>
+    </div>
+
+    <!-- 第 1 组：钥匙（平台 + API Key） -->
+    <div class="field-group">
+      <div class="fg-title"><span class="fg-badge key">🔑 第 1 步 · 选平台 + 粘贴钥匙</span><span>告诉 MS-Agent-Lite「用哪家平台、用哪个钥匙」</span></div>
+      <div class="field">
+        <label>① 选择平台（选常用平台可自动填入下方身份信息，也可选「手动填写」自行输入）</label>
+        <select id="selPreset">
+          <option value="">手动填写（自定义）</option>
+          <option value="zhipu">智谱 AI</option>
+          <option value="siliconflow">硅基流动</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="openai">OpenAI</option>
+          <option value="qwen">阿里云百炼（通义千问）</option>
+          <option value="baidu">百度千帆（文心一言）</option>
+          <option value="tencent">腾讯混元</option>
+          <option value="kimi">Moonshot Kimi</option>
+          <option value="minimax">MiniMax</option>
+          <option value="xfyun">讯飞星火</option>
+          <option value="groq">Groq</option>
+          <option value="openrouter">OpenRouter（模型聚合）</option>
+        </select>
+        <div class="hint-line" id="presetHint">选择平台后将自动填入配置名称 / Base URL / 模型（均可再修改）；选「手动填写」则从空白开始，按服务商文档填写。</div>
+      </div>
+      <div class="field">
+        <label>② API Key（从服务商控制台获取；首次填写，之后可留空）</label>
+        <input type="password" id="kpKey" placeholder="sk-... 或 xxxx.yyyy（完整密钥）">
+        <div class="hint-line">Key 是平台生成的一长串密钥字符，需完整粘贴、前后无空格；不知道怎么拿 Key？打开上面平台的官网注册 → 实名认证 → 创建 API Key → 复制。或回看项目根目录《使用指南.html》第 2 步。</div>
+      </div>
+    </div>
+
+    <!-- 第 2 组：能力（本版只需文本能力） -->
+    <div class="field-group">
+      <div class="fg-title"><span class="fg-badge cap">🧠 第 2 步 · 选择能力类型</span><span>本版只需「文本能力」即可完整使用，识图由 MS-Agent-Lite 自动处理</span></div>
+      <div class="field">
+        <label>③ 模型能力（本版选择「文本能力模型」即可）</label>
+        <select id="kpCap">
+          <option value="text">文本能力模型：只能生成文字，满足本版全部需求；绝大多数模型选它</option>
+          <option value="textvision">识图能力模型（可选）：在文字基础上多了看图 / 读图，可作图片识别兜底；不配置也不影响使用</option>
+        </select>
+        <div class="hint-line">要点：<br>
+          · <b>文本能力模型</b>：只需配置<b>一个文本模型</b>即可完整使用本版（如 deepseek-v4-flash 等纯文本模型），生成的面试材料质量与视觉版相当。<br>
+          · <b>识图能力模型（可选）</b>：若手头已有视觉模型也可配置，仅作图片识别的备用路径；不配置完全不影响使用。<br>
+          · <b>关系</b>：两类都能正常生成面试材料；识别图片文字（如简历扫描件）由 MS-Agent-Lite 自动处理，无需专门配置。
+        </div>
+        <div class="analogy">
+          <b>📌 识图方式说明：</b>本版只需<b>一个文本模型</b>即可完整使用。简历扫描件 / 图片中的文字由 MS-Agent-Lite 内置的本地离线识别自动处理（开箱即用），无需额外配置视觉模型，也无需联网。
+        </div>
+        <div class="tip-card">
+          💡 <b>想配置多个文本模型做备用？</b>第 1 步每次保存<b>一个</b>配置，保存后「大模型 API Key」输入框会自动清空，可直接粘贴下一个平台的 Key 继续配置；右上角「⚙ 高级设置」是统一管理全部模型配置与 API Key 的核心界面，可再添加，所有配置都会列在那里，顺序即调用优先级。
+        </div>
+      </div>
+    </div>
+
+    <!-- 第 3 组：身份信息（通常无需修改） -->
+    <div class="field-group">
+      <div class="fg-title"><span class="fg-badge id">📋 第 3 步 · 确认身份信息</span><span>选平台后已自动填好，通常无需修改；「手动填写」时需按服务商文档补全</span></div>
+      <div class="field">
+        <label>④ 配置名称（自定义标签，仅用于界面中区分不同平台/账号）</label>
+        <input type="text" id="kpName" placeholder="如 zhipu 或 my-key-1（建议用平台名或用途命名）">
+      </div>
+      <div class="field">
+        <label>⑤ 模型名（平台提供的「真实模型 ID」，程序调用时使用）</label>
+        <input type="text" id="kpModel" placeholder="如 glm-4-flash（从平台「模型列表 / 接入文档」复制）">
+      </div>
+      <div class="field">
+        <label>⑥ Base URL（API 接口地址，必须以 /chat/completions 结尾）</label>
+        <input type="text" id="kpUrl" placeholder="https://api.xxx.com/v1/chat/completions">
+        <details class="hint-line" style="margin-top:6px">
+          <summary style="cursor:pointer;color:var(--accent)">❓ 什么是 Base URL？怎么获取？（点开查看说明）</summary>
+          <div style="margin-top:8px;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;line-height:1.8">
+            <b>① 定义</b>：Base URL 是你所选的模型平台对外提供「OpenAI 兼容接口」的<b>完整网址</b>。程序通过它把你的请求发送到该平台，因此必须一字不差地复制平台官方给出的地址，且以 <code>/chat/completions</code> 结尾。<br><br>
+            <b>② 获取方法</b>：登录该平台官网 → 进入「控制台 / API 密钥 / 接入文档」页面 → 找到名为「接口地址 / Base URL / API Endpoint」的字段 → 点复制。不要复制网页首页地址（如 open.bigmodel.cn），那只是官网首页，不是接口地址。<br><br>
+            <b>③ 正确格式示例</b>（各平台官方地址，选平台可自动填入）：<br>
+            · 智谱 AI：<code>https://open.bigmodel.cn/api/paas/v4/chat/completions</code><br>
+            · 硅基流动：<code>https://api.siliconflow.cn/v1/chat/completions</code><br>
+            · DeepSeek：<code>https://api.deepseek.com/v1/chat/completions</code><br>
+            · 阿里百炼（通义）：<code>https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions</code><br>
+            · OpenAI：<code>https://api.openai.com/v1/chat/completions</code><br>
+            全部以 <code>https://</code> 开头、以 <code>/chat/completions</code> 结尾；以各平台最新官方文档为准，可手动修正。
+          </div>
+        </details>
+      </div>
+      <div class="field">
+        <div class="analogy">
+          <b>📌 两个名称别搞混：</b><br>
+          · <b>④ 配置名称</b> = 你给这把「钥匙」贴的<b>标签</b>（如手机通讯录里的联系人昵称，自己看得懂即可，不影响调用）。<br>
+          · <b>⑤ 模型名</b> = 平台给模型的<b>真实编号</b>（如手机号，必须一字不差地从平台复制，程序靠它找到正确的模型）。
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:6px">
+      <button class="btn" id="btnKeySave">💾 保存并自检</button>
+      <span id="keyMsg" class="mini"></span>
+    </div>
+  </section>
+
+  <!-- ② 输入 -->
+  <section class="card" id="cardInput">
+    <h2><span class="step-no">2</span>输入 <span class="hint">岗位名称 + 简历 + 岗位 JD（+ 可选参考网址）</span></h2>
+    <div class="grid">
+      <div class="field">
+        <label class="field-label"><span class="req">必选</span>岗位名称<span class="opt">建议含公司名</span></label>
+        <input type="text" id="inpCompany" placeholder="如：腾讯-Agent开发实习生">
+        <div class="hint-line">效果：决定生成文件名与材料抬头（【岗位名称】面试准备.html）。请按 <b>公司-岗位</b> 格式填写，如 <b>腾讯-Agent开发实习生</b>。⚠ 非法字符（\ / : * ? " &lt; &gt; |）会被<b>自动移除</b>，超过 80 字自动截断。</div>
+      </div>
+      <div class="field">
+        <label class="field-label">行业方向<span class="opt">(可选)</span></label>
+        <select id="selZone">
+          <option value="">— 不选择 —</option>
+        </select>
+        <div class="hint-line" id="zoneHint"></div>
+      </div>
+      <div class="field full">
+        <label class="field-label"><span class="req">必选</span>简历上传<span class="opt">本次生成使用，仅此一次</span></label>
+        <div class="hint-line need" id="resumeNeedTip" style="margin-top:8px">简历未上传</div>
+        <div class="drop" id="dropResume">点击或拖拽简历文件到此处 · <b>支持 pdf / word(docx) / txt / markdown(md)</b>（请传文字版）</div>
+        <input type="file" id="inpResume" accept=".pdf,.docx,.txt,.md,.text" style="display:none">
+        <div class="file-meta" id="fileMeta" style="display:none">
+          <span id="fileInfo"></span>
+          <button class="rm" id="btnRemoveFile">✕ 移除</button>
+          <span id="fileParseState" class="hint-line"></span>
+        </div>
+        <div class="resume-preview" id="resumePreview"></div>
+        <div class="hint-line upload-tip">支持格式：<b>PDF（文字版）</b> / <b>Word（docx）</b> / <b>txt</b> / <b>markdown</b>。⚠ 请上传<b>文字版</b>简历——<b>扫描件 / 拍照 / 图片型 PDF 无法读取</b>，请先用 Word 打开后「另存为」docx（或转成 txt）再上传。效果：生成的材料将基于这份简历（作为项目与数字的主要依据）；简历仅用于本次生成，不会保存到本机。</div>
+      </div>
+      <div class="field full">
+        <label class="field-label">岗位 JD 链接<span class="opt">(可选，与文本二选一)</span></label>
+        <div class="row">
+          <input type="text" id="inpJdUrl" class="grow" placeholder="https://.../job_detail/xxx.html（http:// 或 https:// 开头）">
+          <button class="btn ghost sm" id="btnFetchJd" title="点击后，程序会自动打开上方链接并把它页面里的招聘文本提取出来，填入下方「岗位 JD 文本」框">读取到下方</button>
+        </div>
+        <div class="hint-line" style="margin-top:6px">💡 提示：<b>「读取到下方」</b>= 自动抓取上方链接页面里的招聘文字，填入下方 JD 文本框。<b>直接复制粘贴</b>招聘页的 JD 文字更准确、更快；链接读取仅为辅助方式（部分网站限制程序读取，失败时可改粘贴）。</div>
+      </div>
+      <div class="field full">
+        <label class="field-label"><span class="req">必选</span>岗位 JD 文本<span class="opt">JD 越完整，生成材料匹配度越高（上限 20,000 字，超长部分自动截断）</span></label>
+        <textarea id="inpJd" class="tall" placeholder="【岗位】xxx&#10;【职责】1. ... 2. ...&#10;【要求】..."></textarea>
+      </div>
+      <div class="field full">
+        <label class="field-label">补充参考网址<span class="opt">(可选，最多 15 条)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：可填公司官网、面经帖、技术文章、招聘平台 JD 等，作为生成参考；每行一个网址，需以 http(s):// 开头</span></label>
+        <div id="urlRows"></div>
+        <button class="btn ghost sm" id="btnAddUrlRow" style="margin-top:8px">＋ 添加一行网址</button>
+      </div>
+      <div class="field full">
+        <label class="field-label">补充参考信息<span class="opt">(可选)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：面经、公司背景、技术文章、发展方向等，多段用空行隔开；作为生成参考（仅参考，不会写进你的经历）</span></label>
+        <textarea id="inpRefInfo" class="tall" placeholder="可直接粘贴面试经验分享、公司技术路线文章、行业动态等文字&#10;例如：&#10;（面经）一面问了 RAG 检索优化，重点考察……&#10;（公司背景）腾讯在大模型 Agent 方向持续投入，发布智能体开发平台与工作流工具……&#10;（发展方向）实习团队在做 AI Agent 效率工具……"></textarea>
+        <div class="row" style="margin-top:6px">
+          <span class="hint-line" style="color:var(--muted)">💡 想参考哪些方向就贴哪些文字，越具体生成材料越贴近实际</span>
+          <span id="refInfoCount" class="hint-line" style="margin-left:auto;color:var(--muted)">0 / 20,000 字</span>
+        </div>
+      </div>
+      <div class="field full">
+        <label class="field-label">联系方式<span class="opt">(可选)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：开发者联系方式与面试祝福将统一放置在每份生成结果文件的开头与结尾（如「📮 开发者名 · 联系邮箱 · 祝面试顺利」）；不填则不显示</span></label>
+        <input type="text" id="inpContact" placeholder="如：开发者署名 · 联系邮箱（将出现在每份结果文件的开头与结尾）">
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="btnStart">🚀 一键生成面试材料</button>
+      <span id="inputError" style="color:var(--err);font-size:12.5px"></span>
+    </div>
+    <div class="cost-tip">💰 成本参考：单次完整生成约 <b>0.2 元</b>（约 15 万 tokens，DeepSeek-V4-flash 官方现价；工作日高峰时段约翻倍）——远低于人工准备面试资料的成本。</div>
+  </section>
+
+  <!-- ② 过程 -->
+  <section class="card" id="cardProcess" style="display:none">
+    <h2><span class="step-no">2</span>生成过程 <span class="hint">实时进度与备用切换日志</span>
+      <span class="badge idle" id="taskBadge" style="margin-left:auto">等待</span>
+    </h2>
+    <div class="prog-row" id="progRow">
+      <div class="progress-track" id="progTrack"><div class="progress-fill" id="progFill"></div></div>
+      <span class="progress-pct" id="progPct">0%</span>
+    </div>
+    <div id="fileList" class="files"></div>
+    <div class="logbox" id="logBox"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost sm" id="btnCancel">停止任务</button>
+      <span class="hint-line">单文件失败可稍后在结果区重试</span>
+    </div>
+  </section>
+
+  <!-- ③ 结果 -->
+  <section class="card" id="cardResult" style="display:none">
+    <h2><span class="step-no">3</span>结果 <span class="hint">生成文件：【岗位名称】面试准备.html</span>
+      <span class="badge idle" id="verifyBadge" style="margin-left:auto">—</span>
+    </h2>
+    <div class="result-head" id="retryArea" style="display:none"></div>
+    <div class="check-box" id="checkBox" style="display:none"></div>
+    <div class="preview-box"><div class="preview-empty" id="previewEmpty">等待生成完成…</div><iframe id="previewFrame" style="display:none"></iframe></div>
+  </section>
+
+  <!-- 页尾提示：感谢 + 反馈渠道 -->
+  <footer style="text-align:center;color:var(--ink-mute);font-size:12px;padding:10px 0 4px;line-height:1.9">
+    感谢使用 MS-Agent（纯文本版），希望能对你的面试有所帮助。如有问题或建议，欢迎随时联系作者：<a href="mailto:llxstupg@163.com" style="color:var(--accent)">llxstupg@163.com</a>
+  </footer>
+
+</div>
+
+<!-- 设置抽屉 -->
+<div class="mask" id="mask"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h3>⚙ 高级设置（多模型配置管理）</h3><button class="drawer-close" id="btnCloseDrawer">×</button></div>
+  <div class="drawer-body">
+    <div class="hint-line" style="background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+      <b>使用说明</b>：本页是<b>统一管理</b>全部模型配置与 API Key 的核心界面。<b>主页面第 1 步</b>每次保存一个配置（保存后「大模型 API Key」输入框自动清空，便于继续配置下一个），保存后的配置会自动出现在下方列表里；支持多平台备用切换、多个文本模型、启停 / 删除 / 单独自检。生成面试材料至少需要 1 个已启用且含文本能力的配置；列表顺序即调用优先级（排在上面的优先使用）。
+    </div>
+    <div id="provList"></div>
+    <h4>新增 / 编辑配置</h4>
+    <div class="field"><label>配置名称（自定义标签，仅用于区分不同平台/账号，不影响 API 调用）</label><input type="text" id="pName" placeholder="如 siliconflow 或 my-key-1"></div>
+    <div class="field"><label>Base URL（API 接口地址，必须以 /chat/completions 结尾；获取方法见主页面③的说明）</label><input type="text" id="pUrl" placeholder="https://api.xxx.com/v1/chat/completions"></div>
+    <div class="field"><label>模型名（平台提供的真实模型 ID，从平台「模型列表 / 接入文档」复制；与配置名称是两个不同的东西）</label><input type="text" id="pModel" placeholder="如 Qwen/Qwen2.5-72B-Instruct"></div>
+    <div class="field"><label>API Key（编辑时留空表示不修改）</label><input type="password" id="pKey" placeholder="sk-..."></div>
+    <div class="field"><label>能力（可填 text / vision，逗号分隔）</label><input type="text" id="pCap" placeholder="text,vision" value="text"><div class="hint-line">必须包含 <b>text</b> 才能用于生成面试材料；vision 为可选（本版识图默认由本地离线识别完成，视觉模型仅作备用）。</div></div>
+    <div class="row">
+      <button class="btn sm" id="btnSaveProvider">保存</button>
+      <button class="btn ghost sm" id="btnTestProvider">配置自检</button>
+      <span id="provMsg" class="mini" style="margin-left:4px"></span>
+    </div>
+    <div class="hint-line" style="margin-top:8px">配置保存后自动生效；列表顺序即调用优先级（排在上面的优先使用）。生成面试材料至少需要 1 个已启用、含文本能力且 Key 有效的配置。</div>
+
+    <h4>本地图片文字识别（默认方案）</h4>
+    <div class="hint-line" style="background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+      软件自带的离线图片文字识别：无需联网、无需额外安装，可直接提取图片 / 扫描件中的文字。本版识图默认由本地识别完成：图片文字提取顺序为本地识别 → 本机工具 → 视觉模型（若配置）。
+    </div>
+    <div id="ocrJsStatus"></div>
+
+    <h4>本地工具（可选增强）</h4>
+    <div class="hint-line" style="background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+      在本机安装文档解析 / 图片识别工具，可降低大模型用量、增强离线图片文字识别。全部为<b>可选</b>：未安装时自动回退原有流程，不影响生成。
+    </div>
+    <div id="cliToolsList"></div>
+    <div class="row">
+      <button class="btn ghost sm" id="btnProbeCli">重新检测</button>
+      <span id="cliToolsMsg" class="mini" style="margin-left:4px"></span>
+    </div>
+
+    <h4>联网搜索（可选增强）</h4>
+    <div class="hint-line" style="background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:10px">
+      大模型的知识存在截止日期。生成材料时，AI 遇到「当前时间 / 实时数据 / 最新动态」等时效信息会按协议在正文标注【待联网核实】，并在结果页汇总清单提示人工确认；配置搜索服务 Key 后，生成前会自动搜索权威来源并注入生成上下文，减少标注项。全部为<b>可选</b>：不配置时按协议标注，不影响生成。
+    </div>
+    <div id="webSearchStatus"></div>
+    <div class="field"><label>Tavily API Key（在 tavily.com 免费注册获取，每月 1000 次；留空保存 = 关闭联网搜索）</label><input type="password" id="webSearchKey" placeholder="tvly-..."></div>
+    <div class="row">
+      <button class="btn sm" id="btnSaveWebSearch">保存</button>
+      <span id="webSearchMsg" class="mini" style="margin-left:4px"></span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/web/app.js"></script>
+</body>
+</html>

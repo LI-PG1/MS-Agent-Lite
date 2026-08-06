@@ -1,0 +1,17 @@
+# 密钥与本地配置（绝不外传）
+MS-Agent-Lite工程文件/20_执行/config.json
+MS-Agent-Lite工程文件/20_执行/config.json.bak-*
+
+# 个人数据（简历、生成结果、个人面经）
+MS-Agent-Lite工程文件/10_知识库/简历基准/
+MS-Agent-Lite工程文件/30_产出/面试材料/
+MS-Agent-Lite工程文件/10_知识库/面经实证/
+
+# 岗位画像：只发布模板，实际画像（含投递信息）不外传
+MS-Agent-Lite工程文件/10_知识库/岗位画像/*
+!MS-Agent-Lite工程文件/10_知识库/岗位画像/_模板-公司-岗位.md
+
+# 依赖与系统文件
+node_modules/
+.DS_Store
+Thumbs.db
