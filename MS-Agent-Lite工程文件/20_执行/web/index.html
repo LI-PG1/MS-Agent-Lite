@@ -484,6 +484,14 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="/web/app.js"></script>
+<script>
+  // 兼容两种访问方式：http 服务（npm start/启动器）与直接双击本文件（file:// 协议）
+  // 根路径 /web/app.js 在 file:// 下会被解析到磁盘根目录而加载失败，故 file:// 时改用同目录相对路径
+  (function () {
+    var s = document.createElement("script");
+    s.src = location.protocol === "file:" ? "./app.js" : "/web/app.js";
+    document.body.appendChild(s);
+  })();
+</script>
 </body>
 </html>

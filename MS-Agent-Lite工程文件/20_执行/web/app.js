@@ -1,6 +1,24 @@
-// app.js — 面试助手Agent（MS-Agent）面板前端逻辑（原生 JS，零构建）
+// app.js — 面试助手Agent（MS-Agent-Lite）面板前端逻辑（原生 JS，零构建）
 (function () {
   "use strict";
+
+  // ---------- 运行环境检查 ----------
+  // 直接双击 index.html（file:// 协议）打开时没有本地 Node 服务，所有 /api/* 请求都会失败，
+  // 上传/生成等核心功能无法使用——此时给出明确启动指引，而不是让页面静默失效。
+  if (location.protocol === "file:") {
+    document.body.innerHTML =
+      '<div style="max-width:620px;margin:80px auto;padding:30px 34px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,\'Microsoft YaHei\',sans-serif;line-height:1.9;color:#1f2937;box-shadow:0 8px 30px rgba(17,24,39,.08)">' +
+      '<h2 style="margin:0 0 12px;font-size:20px;color:#111827">⚠ 请通过本地服务打开本面板</h2>' +
+      '<p style="margin:0 0 10px">当前是直接双击打开（file:// 协议），<b>缺少本地 Node 服务</b>，简历上传、生成等功能均无法使用。</p>' +
+      '<p style="margin:0 0 14px"><b>正确启动方式（任选其一）：</b></p>' +
+      '<ol style="margin:0 0 16px;padding-left:22px">' +
+      '<li><b>双击启动器</b>：进入发布包第一层，双击 <code>启动面试助手Agent.bat</code>——自动检查 Node、启动服务并打开浏览器（免终端）。</li>' +
+      '<li><b>命令行启动</b>：打开终端，进入 <code>MS-Agent-Lite工程文件\\20_执行</code> 目录，执行 <code>npm install</code>（首次）后 <code>npm start</code>。</li>' +
+      '</ol>' +
+      '<p style="margin:0;font-size:13px;color:#6b7280">服务启动后请访问 <code>http://localhost:8900/</code>，在该页面内进行上传与生成。</p>' +
+      '</div>';
+    return; // 终止面板初始化，避免无意义报错
+  }
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
