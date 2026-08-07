@@ -2,7 +2,6 @@
 chcp 65001 >nul
 title 面试助手Agent（MS-Agent-Lite）一键启动
 setlocal
-set "LOCAL_VER=0.4.11"
 rem 本文件位于发布包第一层，先进入工程文件目录
 cd /d "%~dp0MS-Agent-Lite工程文件"
 set PORT=8900
@@ -95,14 +94,6 @@ echo 已自动打开浏览器；如未打开，请手动访问：http://127.0.0.
 echo.
 echo 使用完可在任务栏找到"MS-Agent服务"最小化窗口并关闭它来停止服务。
 echo （关闭本窗口不影响服务运行）
-rem ---------- 5) 检查更新（可选：需联网，失败时静默跳过，不影响使用） ----------
-set "REMOTE_VER="
-for /f "delims=" %%v in ('powershell -NoProfile -Command "try{$r=Invoke-RestMethod -Uri 'https://api.github.com/repos/LI-PG1/MS-Agent-Lite/releases/latest' -TimeoutSec 5; Write-Output $r.tag_name}catch{Write-Output ''}"') do set "REMOTE_VER=%%v"
-if defined REMOTE_VER if not "%REMOTE_VER%"=="v%LOCAL_VER%" (
-    echo.
-    echo [提示] 检测到新版本 %REMOTE_VER%（当前 v%LOCAL_VER%）。如需更新，请打开：
-    echo        https://github.com/LI-PG1/MS-Agent-Lite/releases/latest
-)
 echo.
 timeout /t 8 /nobreak >nul
 exit /b 0
