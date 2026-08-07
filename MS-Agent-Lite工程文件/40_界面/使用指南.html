@@ -124,7 +124,7 @@
       <span class="cap">8 文件自动生成</span><span class="cap">内容审核</span><span class="cap">可离线单文件</span>
     </div>
     <div class="save-tip">💾 想离线保存？右键本页 →「另存为」→ 保存为 .html 即可，本文件自带样式与逻辑，无需联网。</div>
-    <p class="save-tip" style="display:block;margin-top:8px">🔢 <b>步骤编号对照</b>：本页与《新手安装使用指南.md》内容一致；因 Markdown 版多了一个「第 0 步 先搞懂」，<b>本页第 N 步 = Markdown 版第 N-1 步</b>（如「填 API Key」：本页第 7 步 = 文字版第 6 步）。任选一份照做即可。</p>
+    <p class="save-tip" style="display:block;margin-top:8px">🔢 <b>步骤编号对照</b>：本页与《新手安装使用指南.md》内容一致；因 Markdown 版多了一个「第 0 步 先搞懂」，<b>本页第 N 步 = Markdown 版第 N-1 步</b>（如「填 API Key」：本页第 5 步 = 文字版第 4 步）。任选一份照做即可。</p>
   </header>
 
   <!-- 1 认识MS-Agent-Lite -->
@@ -135,12 +135,12 @@
       <li><b>输入</b>：你的简历（pdf / word / txt / markdown）+ 岗位 JD（职位介绍）+ 可选的参考网址 / 参考信息（面经、公司背景、技术文章等文字）</li>
       <li><b>输出</b>：一份完整的「<b>岗位名称+面试准备.html</b>」网页材料（自我介绍、项目深挖、技术题库、反问环节等 8 个部分）</li>
       <li><b>工作方式</b>：你配置的大模型负责生成内容，MS-Agent-Lite在本地处理文件与网页、生成并预览材料</li>
-      <li><b>适合谁</b>：零编程经验也能装。需要准备 3 样：Windows 电脑、一个或两个大模型 API Key（第 2 步教怎么拿）、项目文件（第 4 步下载）</li>
+      <li><b>适合谁</b>：零编程经验也能装。需要准备 3 样：Windows 电脑、一个或两个大模型 API Key（第 2 步教怎么拿）、项目文件（第 3 步下载）</li>
     </ul>
     <h3>整体流程一览</h3>
-    <div class="flow">拿 API Key → 装 Node.js → 下载项目 → 进入 MS-Agent-Lite工程文件\20_执行 → npm install 装工具
-    → 填 API Key → 启动MS-Agent-Lite → 浏览器打开 → 上传简历 + 填 JD → 一键生成 → 审核通过 ✓</div>
-    <div class="note">📌 全程不需要写代码。遇到问题先看第 10 步 FAQ，或按错误提示操作。</div>
+    <div class="flow">拿 API Key → 下载项目 → 双击 启动面试助手Agent.bat（首次自动解压内置运行环境）
+    → 浏览器自动打开 → 填 API Key → 上传简历 + 填 JD → 一键生成 → 审核通过 ✓</div>
+    <div class="note">📌 全程不需要写代码、不需要自己安装 Node.js。遇到问题先看第 7 步 FAQ，或按错误提示操作。</div>
   </section>
 
   <!-- 2 API Key -->
@@ -191,30 +191,15 @@
       </div>
     </details>
 
-    <div class="note">📌 无论选哪家，最后都要在记事本里记下 4 个信息：<b>API Key</b>、<b>Base URL（接口地址）</b>、<b>模型名</b>、<b>能力选择（第 7 步界面默认「文本能力模型」）</b>。第 7 步填 Key 时会用到。</div>
+    <div class="note">📌 无论选哪家，最后都要在记事本里记下 4 个信息：<b>API Key</b>、<b>Base URL（接口地址）</b>、<b>模型名</b>、<b>能力选择（第 5 步界面默认「文本能力模型」）</b>。第 5 步填 Key 时会用到。</div>
     <div class="warn">⚠ 安全：API Key 相当于你的钱和隐私，不要发给任何人、不要传到群聊。泄露了立即去后台「删除/重置」。</div>
     <div class="ok">✔ 检查：记事本里已存好 4 个信息，可进入下一步。</div>
   </section>
 
-  <!-- 3 Node.js -->
+  <!-- 3 下载项目 -->
   <section class="sec" data-step="3" id="s3">
-    <h2><span class="step-no">3</span>安装 Node.js（运行环境）</h2>
-    <p class="desc">面试助手Agent（MS-Agent-Lite）是用 Node.js 写的，电脑要先装一个"运行器"。</p>
-    <ol>
-      <li>打开官网 <code class="inline">https://nodejs.org</code></li>
-      <li>点绿色 <b>LTS</b> 按钮，下载 Windows 安装包（.msi）</li>
-      <li>双击安装包 → 一路「下一步 / Next」→「Install」→ 完成</li>
-      <li>验证是否装好（第一次用到终端，按下面提示操作）：</li>
-    </ol>
-    <div class="term">💻 终端操作三步走：① 按 <b>Win + R</b>，输入 <code class="inline">cmd</code>，回车（打开黑色终端窗口）② 复制下面这行命令 ③ 在黑色窗口里<b>右键粘贴</b>（或 Ctrl+V），再按<b>回车</b>执行。</div>
-    <pre>node -v</pre>
-    <div class="ok">✔ 检查：显示类似 <code class="inline">v24.18.1</code> 的数字即装好；提示「不是内部或外部命令」则重装一次。</div>
-  </section>
-
-  <!-- 4 下载项目 -->
-  <section class="sec" data-step="4" id="s4">
-    <h2><span class="step-no">4</span>下载项目</h2>
-    <p class="desc">本项目文档托管在 GitHub，直接访问：<code class="inline">https://github.com/你的用户名/MS-Agent-Lite</code>（把「你的用户名」换成实际仓库的用户名）。以下两种方式任选其一。</p>
+    <h2><span class="step-no">3</span>下载项目</h2>
+    <p class="desc">本项目文档托管在 GitHub，直接访问：<code class="inline">https://github.com/LI-PG1/MS-Agent-Lite</code>。以下两种方式任选其一。</p>
     <h3>方式 A（最简单，不用装 Git）：网页下载 ZIP</h3>
     <ol>
       <li>浏览器打开上面的仓库链接</li>
@@ -223,42 +208,28 @@
     </ol>
     <h3>方式 B：用 git 命令下载（可选，想长期更新用这个）</h3>
     <div class="term">💻 终端操作：① 按 <b>Win + R</b>，输入 <code class="inline">cmd</code>，回车 ② 复制下面这行命令 ③ 在黑色窗口里右键粘贴，按<b>回车</b>执行。</div>
-    <pre>git clone https://github.com/你的用户名/MS-Agent-Lite.git D:\MS-Agent-Lite</pre>
+    <pre>git clone https://github.com/LI-PG1/MS-Agent-Lite.git D:\MS-Agent-Lite</pre>
     <div class="note">📌 解压后记下路径，本文统一以 <code class="inline">D:\MS-Agent-Lite</code> 为例（即能看到 <code class="inline">MS-Agent-Lite工程文件</code> 文件夹和 <code class="inline">启动面试助手Agent.bat</code> 的那一层）。</div>
     <div class="ok">✔ 检查：打开文件夹能看到 <code class="inline">MS-Agent-Lite工程文件</code> 子文件夹。</div>
   </section>
 
-  <!-- 5 进入目录 -->
+  <!-- 4 启动 -->
+  <section class="sec" data-step="4" id="s4">
+    <h2><span class="step-no">4</span>启动MS-Agent-Lite</h2>
+    <p class="desc">以后每次使用都这样做：双击启动器 → 浏览器自动打开。<b>无需自己安装 Node.js</b>。</p>
+    <div class="ok">✅ <b>双击启动器（最简单）</b> —— 打开发布包第一层（项目根目录）<code class="inline">D:\MS-Agent-Lite</code>，找到 <b><code class="inline">启动面试助手Agent.bat</code></b>，双击即可。<b>首次启动</b>会自动解压内置的 Node.js 与依赖包（约 1~2 分钟，仅此一次，期间不要关窗口），随后自动启动本地服务并打开浏览器 <code class="inline">http://localhost:8900/</code>；若没自动打开，手动访问 <code class="inline">http://127.0.0.1:8900</code> 即可。之后每次启动都是秒开。</div>
+    <div class="term">💻 <b>手动方式（可选）</b>：如果你已经自行安装了 Node.js，也可以在终端进入 <code class="inline">MS-Agent-Lite工程文件\20_执行</code> 后运行 <code class="inline">npm start</code>（首次需先 <code class="inline">npm install</code>）。</div>
+    <div class="ok">✔ 检查：看到 <code class="inline">服务已启动: http://127.0.0.1:8900</code> 字样即成功。</div>
+    <div class="warn">⚠ 用完想关闭：双击启动的服务在后台运行，直接关浏览器即可（下次双击自动复用/重启）；手动方式启动的回到终端按 <b>Ctrl + C</b>（问 Y/N 就按 Y 回车）。</div>
+  </section>
+
+  <!-- 5 配 Key -->
   <section class="sec" data-step="5" id="s5">
-    <h2><span class="step-no">5</span>打开终端，进入项目目录</h2>
-    <p class="desc">MS-Agent-Lite的命令都要在项目里执行。先学会"进目录"。</p>
-    <ol>
-      <li><b>Win + R</b> → 输入 <code class="inline">cmd</code> → 回车（打开黑色窗口）</li>
-      <li>复制下面命令，在黑色窗口里右键粘贴，回车（<b>注意要进到 MS-Agent-Lite工程文件\20_执行 这一层</b>）：</li>
-    </ol>
-    <div class="term">💻 终端操作：按 <b>Win+R</b> → 输入 <code class="inline">cmd</code> → 回车 → 粘贴命令 → 回车。如果你的解压路径不是 <code class="inline">D:\MS-Agent-Lite</code>，把命令里的路径换成你自己的。</div>
-    <pre>cd /d D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行</pre>
-    <div class="ok">✔ 检查：窗口最前面变成 <code class="inline">D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行&gt;</code> 即成功。</div>
-    <div class="warn">⚠ 很多新手卡在这：一定要进到 <code class="inline">MS-Agent-Lite工程文件\20_执行</code> 层（不是 MS-Agent-Lite 根目录那一层）。</div>
-  </section>
-
-  <!-- 6 装依赖 -->
-  <section class="sec" data-step="6" id="s6">
-    <h2><span class="step-no">6</span>安装项目自带工具（npm install）</h2>
-    <p class="desc">让MS-Agent-Lite自带的"读 PDF / 读 Word"工具就位。第一次会等几分钟，期间不要关窗口。</p>
-    <div class="term">💻 终端操作：确认窗口最前面是 <code class="inline">D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行&gt;</code>，复制下面命令 → 右键粘贴 → 回车。</div>
-    <pre>npm install</pre>
-    <div class="ok">✔ 检查：看到 <code class="inline">added xx packages</code>，且 <code class="inline">MS-Agent-Lite工程文件\20_执行</code> 里出现 <code class="inline">node_modules</code> 文件夹。</div>
-    <div class="note">📌 如果很慢或报错：先复制执行 <code class="inline">npm config set registry https://registry.npmmirror.com</code> 换国内镜像，再重新 npm install。</div>
-  </section>
-
-  <!-- 7 配 Key -->
-  <section class="sec" data-step="7" id="s7">
-    <h2><span class="step-no">7</span>把 API Key 填进MS-Agent-Lite</h2>
+    <h2><span class="step-no">5</span>把 API Key 填进MS-Agent-Lite</h2>
     <p class="desc">MS-Agent-Lite已经把"配钥匙"做成了主页面第 1 步，照着填即可：</p>
     <div class="flow">打开MS-Agent-Lite页面 → 第 1 步「大模型 API Key」→ 选平台（自动填 Base URL / 模型）→ 粘贴 Key → 保存并自检 → ✓ 配置成功</div>
     <ol>
-      <li>先做<b>第 8 步</b>启动MS-Agent-Lite，浏览器打开 <code class="inline">http://127.0.0.1:8900</code></li>
+      <li>先做<b>第 4 步</b>启动MS-Agent-Lite，浏览器打开 <code class="inline">http://127.0.0.1:8900</code></li>
       <li>页面顶部就是第 1 步「大模型 API Key」卡片：在「选择平台」里选你第 2 步注册的服务商（如智谱 AI），名称 / Base URL / 模型会自动填好</li>
       <li>把第 2 步复制好的 <b>API Key</b> 粘贴到「⑥ API Key」输入框</li>
       <li>点「💾 保存并自检」→ 显示「✓ 已保存并自检通过」、顶部状态条变绿「✓ API Key 已配置成功」即成功</li>
@@ -266,24 +237,9 @@
     <div class="note">📌 能力选择：本版只需文本能力（界面默认「文本能力模型」即可），识图由MS-Agent-Lite内置的本地离线识别自动处理，无需视觉模型。备选：直接编辑 <code class="inline">D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行\config.json</code> 里的 apiKey（注意保留英文引号），拿不准就用页面方式。</div>
   </section>
 
-  <!-- 8 启动 -->
-  <section class="sec" data-step="8" id="s8">
-    <h2><span class="step-no">8</span>启动MS-Agent-Lite</h2>
-    <p class="desc">以后每次使用都这样做：双击启动器 → 浏览器自动打开。</p>
-    <div class="ok">✅ <b>方式一（最简单）：双击启动器</b> —— 打开发布包第一层（项目根目录）<code class="inline">D:\MS-Agent-Lite</code>，找到 <b><code class="inline">启动面试助手Agent.bat</code></b>，双击即可。首次会自动检查 Node.js（未安装会弹窗给指引），稍等几秒浏览器自动打开 <code class="inline">http://localhost:8900/</code>；若没自动打开，手动访问 <code class="inline">http://127.0.0.1:8900</code> 即可。</div>
-    <div class="term">💻 <b>方式二（手动）</b>：确认终端窗口最前面是 <code class="inline">D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行&gt;</code>，复制下面命令 → 右键粘贴 → 回车。</div>
-    <pre>npm start</pre>
-    <div class="ok">✔ 检查：看到 <code class="inline">服务已启动: http://127.0.0.1:8900</code> 字样即成功。</div>
-    <ol>
-      <li>打开浏览器（Chrome / Edge）</li>
-      <li>地址栏输入 <code class="inline">http://127.0.0.1:8900</code> 回车</li>
-    </ol>
-    <div class="warn">⚠ 用完想关闭：方式一启动的服务在后台运行，直接关浏览器即可（下次双击自动复用/重启）；方式二启动的回到终端按 <b>Ctrl + C</b>（问 Y/N 就按 Y 回车）。</div>
-  </section>
-
-  <!-- 9 使用 -->
-  <section class="sec" data-step="9" id="s9">
-    <h2><span class="step-no">9</span>开始使用（6 步走一遍）</h2>
+  <!-- 6 使用 -->
+  <section class="sec" data-step="6" id="s6">
+    <h2><span class="step-no">6</span>开始使用（6 步走一遍）</h2>
     <p class="desc">按界面提示操作即可：</p>
     <div class="flow">上传简历 → 选行业（可选）→ 填岗位名称 → 填岗位 JD（直接粘贴文本）→ 补参考网址 / 参考信息（可选）→ 一键生成 → 审核通过 ✓</div>
     <ol>
@@ -309,9 +265,9 @@
     </div>
   </section>
 
-  <!-- 10 FAQ -->
-  <section class="sec" data-step="10" id="s10">
-    <h2><span class="step-no">10</span>常见问题（FAQ）</h2>
+  <!-- 7 FAQ -->
+  <section class="sec" data-step="7" id="s7">
+    <h2><span class="step-no">7</span>常见问题（FAQ）</h2>
     <p class="desc">点开任意问题查看答案。</p>
 
     <details open>
@@ -323,8 +279,8 @@
       <div class="faq-body">这是正常现象：大模型的知识存在截止日期，遇到「当前时间 / 实时数据 / 最新动态」等时效信息时，AI 会按协议在正文标注【待联网核实：具体问题】、在文件末尾列出「联网核实清单」，并在生成完成后的结果页汇总提示——这些信息未经联网确认，建议核对来源后再引用。两种处理方式：① <b>配置联网搜索（可选增强）</b>：在「⚙ 高级设置」里填写搜索服务 Key（Tavily，免费注册，每月 1000 次），下次生成前会自动搜索权威来源并注入上下文，减少标注项；② 在「补充参考网址」里粘贴权威来源链接后重新生成，让 AI 直接以你的材料为准。</div>
     </details>
     <details>
-      <summary>npm install 报错或特别慢怎么办？</summary>
-      <div class="faq-body">网络问题。先执行 <code class="inline">npm config set registry https://registry.npmmirror.com</code> 换国内镜像，再重新 <code class="inline">npm install</code>。</div>
+      <summary>首次启动解压依赖报错 / 很慢怎么办？</summary>
+      <div class="faq-body">首次启动会自动解压内置的 Node.js 与依赖包（约 1~2 分钟，仅一次，依赖来自发布包内置压缩包、不依赖网络）。若解压中断或报错，可删除 <code class="inline">runtime\node</code> 与 <code class="inline">MS-Agent-Lite工程文件\20_执行\node_modules</code> 后重新双击启动器，重试基本都能成功。</div>
     </details>
     <details>
       <summary>启动时提示 8900 端口被占用？</summary>
@@ -336,7 +292,7 @@
     </details>
     <details>
       <summary>点生成后提示「没有可用 provider」？</summary>
-      <div class="faq-body">第 7 步没配好：检查 Key 是否粘贴、「能力选择」是否含文本能力（默认「文本能力模型」即可）、有没有点「保存并自检」。配置后看到顶部状态条变绿「✓ API Key 已配置成功」即正常。</div>
+      <div class="faq-body">第 5 步没配好：检查 Key 是否粘贴、「能力选择」是否含文本能力（默认「文本能力模型」即可）、有没有点「保存并自检」。配置后看到顶部状态条变绿「✓ API Key 已配置成功」即正常。</div>
     </details>
     <details>
       <summary>上传简历提示「不支持格式」？</summary>
@@ -364,15 +320,15 @@
     </details>
   </section>
 
-  <!-- 11 支持与反馈 -->
-  <section class="sec" data-step="11" id="s11">
-    <h2><span class="step-no">11</span>支持与反馈</h2>
+  <!-- 8 支持与反馈 -->
+  <section class="sec" data-step="8" id="s8">
+    <h2><span class="step-no">8</span>支持与反馈</h2>
     <p class="desc">本工具仍在持续完善中。如果你有改进建议，或在使用过程中遇到任何问题，欢迎随时联系我：</p>
     <div class="note">📮 邮箱：<a href="mailto:llxstupg@163.com"><b>llxstupg@163.com</b></a></div>
     <div class="ok">🙏 感谢使用本工具，祝你面试顺利！</div>
   </section>
 
-  <footer>🎉 完成以上步骤，你就可以每天用它准备面试了。祝面试顺利！<br>日常三连：双击发布包第一层的 <code class="inline">启动面试助手Agent.bat</code> → 浏览器自动打开 → 关浏览器即可（手动方式：Win+R → cmd → cd /d D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行 → npm start）</footer>
+  <footer>🎉 完成以上步骤，你就可以每天用它准备面试了。祝面试顺利！<br>日常三连：双击发布包第一层的 <code class="inline">启动面试助手Agent.bat</code> → 浏览器自动打开 → 填 Key 上传简历一键生成 → 关浏览器即可（手动方式：Win+R → cmd → cd /d D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行 → npm start）</footer>
 </main>
 
 <script>
@@ -381,15 +337,12 @@
   var STEPS = [
     {id:"s1",  label:"认识MS-Agent-Lite"},
     {id:"s2",  label:"API Key"},
-    {id:"s3",  label:"Node.js"},
-    {id:"s4",  label:"下载项目"},
-    {id:"s5",  label:"进入目录"},
-    {id:"s6",  label:"装依赖"},
-    {id:"s7",  label:"配 Key"},
-    {id:"s8",  label:"启动"},
-    {id:"s9",  label:"使用"},
-    {id:"s10", label:"FAQ"},
-    {id:"s11", label:"支持反馈"}
+    {id:"s3",  label:"下载项目"},
+    {id:"s4",  label:"启动"},
+    {id:"s5",  label:"配 Key"},
+    {id:"s6",  label:"使用"},
+    {id:"s7",  label:"FAQ"},
+    {id:"s8",  label:"支持反馈"}
   ];
 
   // 渲染悬浮流程图（节点默认只显示圆点，鼠标悬停展开阶段名称）

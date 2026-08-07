@@ -13,5 +13,7 @@ MS-Agent-Lite工程文件/10_知识库/岗位画像/*
 
 # 依赖与系统文件
 node_modules/
+runtime/node/                    # 内置 Node 解压产物（首次启动自动解压生成）
+runtime/node_modules.zip         # 依赖合并临时文件（首次启动自动合并后删除）
 .DS_Store
 Thumbs.db

@@ -2,7 +2,7 @@
 
 > 目标：把 MS-Agent 从你的电脑传到 GitHub，让其他人（或你自己换电脑时）能下载使用。
 > 全程英文网页界面，本文把每个按钮的英文和中文意思都标出来。
-> 预计 20~30 分钟。**前提**：已完成《新手安装使用指南》第 1~5 步（装了 Git、装好了依赖）。
+> 预计 20~30 分钟。**前提**：已在本地跑通一次——拿到 API Key、能双击「启动面试助手Agent.bat」打开面板（见《新手安装使用指南》第 1~4 步）。
 
 ---
 
@@ -39,8 +39,9 @@ git --version
 ```
 MS-Agent-Lite\（上传后别人会看到这些）
 ├── README.md                  # 项目说明书（首页展示的文字）
-├── .gitignore                 # Git 黑名单：config.json / 简历 / 生成材料 / node_modules 自动不上传
-├── 启动面试助手Agent.bat      # 双击启动软件
+├── .gitignore                 # Git 黑名单：config.json / 简历 / 生成材料 / node_modules / 解压产物 自动不上传
+├── 启动面试助手Agent.bat      # 双击启动软件（免装 Node，首次自动解压运行环境）
+├── runtime\                   # ✅ 内置便携版 Node.js（node.zip）与依赖包切片（node_modules.zip.part1~3）
 └── MS-Agent-Lite工程文件\
     ├── 新手安装使用指南.md      # 新手教程
     ├── 00_规范\                # 设计文档与生成规范
@@ -52,7 +53,7 @@ MS-Agent-Lite\（上传后别人会看到这些）
     └── 20_执行\
         ├── config.json             # ⚠⚠ 含你的 API Key（真金白银，绝不能传）
         ├── config.example.json     # ✅ 脱敏模板（Key 为空，可传，已为你准备好）
-        ├── node_modules\           # ⚠ 安装的工具（几百 MB，绝不能传，别人自己会装）
+        ├── node_modules\           # ⚠ 解压生成的工具（首次启动由 runtime 自动解压，本地若已存在也绝不传）
         ├── server.js / pipeline.js / ...  # ✅ 程序代码（可传）
         └── web\                    # ✅ 网页界面代码（可传）
 ```
@@ -64,12 +65,14 @@ MS-Agent-Lite\（上传后别人会看到这些）
 | 所有 `.js` / `.html` / `.md` / `.json`（除下两行） | ✅ 传 | 程序代码和文档 |
 | `MS-Agent-Lite工程文件/20_执行/config.json` | ❌ 绝不传 | 里面有你的 API Key |
 | `MS-Agent-Lite工程文件/20_执行/config.example.json` | ✅ 传 | 脱敏模板，别人照着填 |
-| `MS-Agent-Lite工程文件/20_执行/node_modules` | ❌ 绝不传 | 体积大，别人 `npm install` 自己装 |
+| `MS-Agent-Lite工程文件/20_执行/node_modules` | ❌ 绝不传 | 首次启动由 runtime 自动解压，无需上传 |
 | `MS-Agent-Lite工程文件/10_知识库/简历基准`（简历 PDF） | ❌ 建议不传 | 个人简历 = 个人隐私 |
 | `MS-Agent-Lite工程文件/30_产出/面试材料` | ❌ 建议不传 | 生成内容基于你的简历 |
 | `MS-Agent-Lite工程文件/10_知识库/面经实证` | ❌ 建议不传 | 含个人面试记录 |
+| `runtime\`（node.zip + node_modules.zip.part1~3） | ✅ 传 | 内置便携版 Node.js 与依赖包（各 <100MB，GitHub 限制内） |
+| `runtime\node\`、`runtime\node_modules.zip` | ❌ 绝不传 | 首次启动解压生成的产物与临时合并文件，已列入 .gitignore |
 
-> 判断口诀：**带 key 的、带个人简历的、node_modules，一律不传。**
+> 判断口诀：**带 key 的、带个人简历的、node_modules、解压产物，一律不传。**
 
 ---
 
@@ -126,6 +129,8 @@ cd /d D:\MS-Agent-Lite
    > 
    > # 依赖与系统文件
    > node_modules/
+   > runtime/node/                    # 内置 Node 解压产物（首次启动自动解压生成）
+   > runtime/node_modules.zip         # 依赖合并临时文件（首次启动自动合并后删除）
    > .DS_Store
    > Thumbs.db
    > ```
@@ -192,9 +197,10 @@ GitHub 从 2021 年起**不允许用账号密码**推送，要用一个叫 **Tok
 ## 第 6 步 验证上传成功
 
 1. 浏览器打开 `https://github.com/你的用户名/MS-Agent-Lite`
-2. 确认能看到：`README.md`、`MS-Agent-Lite工程文件` 文件夹、`启动面试助手Agent.bat` 等
-3. 点进 `MS-Agent-Lite工程文件\20_执行`，确认能看到 `config.example.json`、**看不到** `config.json` 和 `node_modules`
-4. 都对了 → 别人就能按《新手安装使用指南》从你的仓库下载使用了 🎉
+2. 确认能看到：`README.md`、`runtime` 文件夹、`MS-Agent-Lite工程文件` 文件夹、`启动面试助手Agent.bat` 等
+3. 点进 `runtime`，确认能看到 `node.zip` 和 `node_modules.zip.part1/2/3`（GitHub 单文件限制 100MB，已拆 3 片）
+4. 点进 `MS-Agent-Lite工程文件\20_执行`，确认能看到 `config.example.json`、**看不到** `config.json` 和 `node_modules`
+5. 都对了 → 别人就能按《新手安装使用指南》从你的仓库下载使用了 🎉
 
 ---
 
@@ -228,6 +234,7 @@ git push
 
 - [ ] 浏览器打开仓库，能看到代码
 - [ ] MS-Agent-Lite工程文件\20_执行 里**没有** config.json、node_modules
+- [ ] 根目录 `runtime` 里有 node.zip 和 node_modules.zip.part1/2/3；`runtime\node` / `runtime\node_modules.zip` 没被上传
 - [ ] MS-Agent-Lite工程文件/10_知识库/简历基准 / MS-Agent-Lite工程文件/30_产出/面试材料 / MS-Agent-Lite工程文件/10_知识库/面经实证 没有上传
 - [ ] 本地 `MS-Agent-Lite工程文件/20_执行/config.json` 还是原来的（Key 没被清掉）
 - [ ] 用仓库的 ZIP 在另一台电脑按《新手安装使用指南》走通了一遍
