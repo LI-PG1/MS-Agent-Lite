@@ -17,3 +17,7 @@ runtime/node/                    # 内置 Node 解压产物（首次启动自动
 runtime/node_modules.zip         # 依赖合并临时文件（首次启动自动合并后删除）
 .DS_Store
 Thumbs.db
+
+# 本地构建产物（打包安装版）
+tools/_staging/
+tools/_dist/
