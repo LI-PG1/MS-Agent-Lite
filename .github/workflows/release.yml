@@ -20,7 +20,29 @@ jobs:
 
       - name: Build installer
         shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
         run: powershell -ExecutionPolicy Bypass -File tools/build-release.ps1
+
+      - name: Remove stale installer assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          $hdr = @{ 'Authorization' = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'ps'; 'Accept' = 'application/vnd.github+json' }
+          $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/$env:REPO/releases/tags/$env:TAG" -Headers $hdr -ErrorAction SilentlyContinue
+          if ($rel.id) {
+            foreach ($a in $rel.assets) {
+              if ($a.name -like '*-setup.exe') {
+                Write-Host "Removing stale asset: $($a.name)"
+                Invoke-RestMethod -Method Delete -Uri "https://api.github.com/repos/$env:REPO/releases/assets/$($a.id)" -Headers $hdr | Out-Null
+              }
+            }
+          } else {
+            Write-Host "Release not found yet, skip cleanup"
+          }
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2

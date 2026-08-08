@@ -36,6 +36,21 @@ if (-not $candidates) { throw 'ISCC.exe (Inno Setup 6) not found. Install Inno S
 $iscc = $candidates | Select-Object -First 1
 
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
-& $iscc (Join-Path $tools 'ms-agent-lite.iss')
+
+# 2.1 Derive version: Actions 注入的 RELEASE_VERSION（tag，如 v0.4.18）→ 本地 git tag → .iss 默认值
+$ver = $env:RELEASE_VERSION
+if (-not $ver) {
+    Push-Location $root
+    try { $ver = git describe --tags --abbrev=0 2>$null } finally { Pop-Location }
+}
+if ($ver -match '^v') { $ver = $ver.Substring(1) }
+$issArgs = @()
+if ($ver) {
+    Write-Host "[2/2] Building installer for version $ver (tag=$env:RELEASE_VERSION)"
+    $issArgs += "/DMyAppVersion=$ver"
+} else {
+    Write-Host '[2/2] No tag found, using default version defined in .iss'
+}
+& $iscc $issArgs (Join-Path $tools 'ms-agent-lite.iss')
 if ($LASTEXITCODE -ne 0) { throw "ISCC failed (exit=$LASTEXITCODE)" }
 Write-Host '[2/2] Installer generated in tools\_dist'
