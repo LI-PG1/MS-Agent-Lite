@@ -31,17 +31,23 @@ jobs:
           REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: |
-          $hdr = @{ 'Authorization' = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'ps'; 'Accept' = 'application/vnd.github+json' }
-          $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/$env:REPO/releases/tags/$env:TAG" -Headers $hdr -ErrorAction SilentlyContinue
-          if ($rel.id) {
-            foreach ($a in $rel.assets) {
-              if ($a.name -like '*-setup.exe') {
-                Write-Host "Removing stale asset: $($a.name)"
-                Invoke-RestMethod -Method Delete -Uri "https://api.github.com/repos/$env:REPO/releases/assets/$($a.id)" -Headers $hdr | Out-Null
+          # 清理该 tag 已有 Release 中的旧 setup 资产（重打同一 tag 时会残留旧版本安装包）；
+          # Release 不存在（404）时静默跳过，不阻塞上传
+          try {
+            $hdr = @{ 'Authorization' = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'ps'; 'Accept' = 'application/vnd.github+json' }
+            $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/$env:REPO/releases/tags/$env:TAG" -Headers $hdr -SkipHttpErrorCheck
+            if ($rel.id) {
+              foreach ($a in $rel.assets) {
+                if ($a.name -like '*-setup.exe') {
+                  Write-Host "Removing stale asset: $($a.name)"
+                  Invoke-RestMethod -Method Delete -Uri "https://api.github.com/repos/$env:REPO/releases/assets/$($a.id)" -Headers $hdr -SkipHttpErrorCheck | Out-Null
+                }
               }
+            } else {
+              Write-Host "No existing release for tag $env:TAG, nothing to clean"
             }
-          } else {
-            Write-Host "Release not found yet, skip cleanup"
+          } catch {
+            Write-Host "Cleanup skipped: $($_.Exception.Message)"
           }
 
       - name: Upload to Release
