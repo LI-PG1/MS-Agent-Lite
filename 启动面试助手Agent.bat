@@ -1,26 +1,25 @@
-ï»¿@echo off
-chcp 65001 >nul
-title é¢è¯•åŠ©æ‰‹Agentï¼ˆMS-Agent-Liteï¼‰ä¸€é”®å¯åŠ¨
+@echo off
+title ÃæÊÔÖúÊÖAgent£¨MS-Agent-Lite£©Ò»¼üÆô¶¯
 setlocal
-rem æœ¬æ–‡ä»¶ä½äºŽå‘å¸ƒåŒ…ç¬¬ä¸€å±‚ï¼Œå…ˆè¿›å…¥å·¥ç¨‹æ–‡ä»¶ç›®å½•
-cd /d "%~dp0MS-Agent-Liteå·¥ç¨‹æ–‡ä»¶"
+rem ±¾ÎÄ¼þÎ»ÓÚ·¢²¼°üµÚÒ»²ã£¬ÏÈ½øÈë¹¤³ÌÎÄ¼þÄ¿Â¼
+cd /d "%~dp0MS-Agent-Lite¹¤³ÌÎÄ¼þ"
 set PORT=8900
 set "RUNTIME=%~dp0runtime"
 
 echo ==================================================
-echo   é¢è¯•åŠ©æ‰‹Agentï¼ˆMS-Agent-Liteï¼‰ä¸€é”®å¯åŠ¨å™¨
-echo   - æœ¬åœ°æœåŠ¡åœ°å€ï¼šhttp://127.0.0.1:%PORT%/
-echo   - æ•°æ®ä»…ä¿å­˜åœ¨æœ¬æœºï¼Œè¯·æ”¾å¿ƒä½¿ç”¨
+echo   ÃæÊÔÖúÊÖAgent£¨MS-Agent-Lite£©Ò»¼üÆô¶¯Æ÷
+echo   - ±¾µØ·þÎñµØÖ·£ºhttp://127.0.0.1:%PORT%/
+echo   - Êý¾Ý½ö±£´æÔÚ±¾»ú£¬Çë·ÅÐÄÊ¹ÓÃ
 echo ==================================================
 echo.
 
-rem ---------- 0) å†…ç½®è¿è¡Œæ—¶å‡†å¤‡ï¼ˆé¦–æ¬¡å¯åŠ¨è‡ªåŠ¨è§£åŽ‹ï¼Œä¹‹åŽç§’å¼€ï¼‰ ----------
-rem 0.1 Node.jsï¼šè‹¥ runtime\node\ æœªè§£åŽ‹ä¸”å­˜åœ¨ node.zipï¼Œåˆ™è‡ªåŠ¨è§£åŽ‹
+rem ---------- 0) ÄÚÖÃÔËÐÐÊ±×¼±¸£¨Ê×´ÎÆô¶¯×Ô¶¯½âÑ¹£¬Ö®ºóÃë¿ª£© ----------
+rem 0.1 Node.js£ºÈô runtime\node\ Î´½âÑ¹ÇÒ´æÔÚ node.zip£¬Ôò×Ô¶¯½âÑ¹
 set "NODE_EXE="
 if exist "%RUNTIME%\node\node.exe" (
     set "NODE_EXE=%RUNTIME%\node\node.exe"
 ) else if exist "%RUNTIME%\node.zip" (
-    echo [0/4] é¦–æ¬¡å¯åŠ¨ï¼šæ­£åœ¨è§£åŽ‹å†…ç½® Node.jsï¼ˆçº¦ 20 ç§’ï¼Œä»…æ­¤ä¸€æ¬¡ï¼‰...
+    echo [0/4] Ê×´ÎÆô¶¯£ºÕýÔÚ½âÑ¹ÄÚÖÃ Node.js£¨Ô¼ 20 Ãë£¬½ö´ËÒ»´Î£©...
     powershell -NoProfile -Command "Expand-Archive -Path '%RUNTIME%\node.zip' -DestinationPath '%RUNTIME%' -Force" >nul
     if exist "%RUNTIME%\node-v24.19.0-win-x64\node.exe" (
         move /y "%RUNTIME%\node-v24.19.0-win-x64" "%RUNTIME%\node" >nul
@@ -28,42 +27,42 @@ if exist "%RUNTIME%\node\node.exe" (
     if exist "%RUNTIME%\node\node.exe" set "NODE_EXE=%RUNTIME%\node\node.exe"
 )
 
-rem 0.2 ä¾èµ–åŒ…ï¼šè‹¥ 20_æ‰§è¡Œ\node_modules ä¸å­˜åœ¨ä¸”å­˜åœ¨åˆ‡ç‰‡ï¼Œåˆ™åˆå¹¶å¹¶è§£åŽ‹
-if not exist "%CD%\20_æ‰§è¡Œ\node_modules" (
+rem 0.2 ÒÀÀµ°ü£ºÈô 20_Ö´ÐÐ\node_modules ²»´æÔÚÇÒ´æÔÚÇÐÆ¬£¬ÔòºÏ²¢²¢½âÑ¹
+if not exist "%CD%\20_Ö´ÐÐ\node_modules" (
     if exist "%RUNTIME%\node_modules.zip.part1" (
-        echo [1/4] é¦–æ¬¡å¯åŠ¨ï¼šæ­£åœ¨è§£åŽ‹å†…ç½®ä¾èµ–åŒ…ï¼ˆçº¦ 1 åˆ†é’Ÿï¼Œä»…æ­¤ä¸€æ¬¡ï¼‰...
+        echo [1/4] Ê×´ÎÆô¶¯£ºÕýÔÚ½âÑ¹ÄÚÖÃÒÀÀµ°ü£¨Ô¼ 1 ·ÖÖÓ£¬½ö´ËÒ»´Î£©...
         powershell -NoProfile -Command "$fs=[System.IO.File]::Create('%RUNTIME%\node_modules.zip'); for($i=1;$i -le 3;$i++){ $p='%RUNTIME%\node_modules.zip.part'+$i; if(Test-Path $p){ $b=[System.IO.File]::ReadAllBytes($p); $fs.Write($b,0,$b.Length) } }; $fs.Close()" >nul
-        powershell -NoProfile -Command "Expand-Archive -Path '%RUNTIME%\node_modules.zip' -DestinationPath '%CD%\20_æ‰§è¡Œ' -Force" >nul
+        powershell -NoProfile -Command "Expand-Archive -Path '%RUNTIME%\node_modules.zip' -DestinationPath '%CD%\20_Ö´ÐÐ' -Force" >nul
         del "%RUNTIME%\node_modules.zip" >nul 2>nul
     )
 )
 
-rem ---------- 1) æ£€æŸ¥ Node.jsï¼ˆä¼˜å…ˆå†…ç½®ï¼Œå…¶æ¬¡ç³»ç»Ÿï¼‰ ----------
+rem ---------- 1) ¼ì²é Node.js£¨ÓÅÏÈÄÚÖÃ£¬Æä´ÎÏµÍ³£© ----------
 if not defined NODE_EXE (
     where node >nul 2>nul
     if errorlevel 1 (
-        echo [é”™è¯¯] æœªæ£€æµ‹åˆ° Node.jsï¼Œå‘å¸ƒåŒ…ä¸­ä¹Ÿæœªæ‰¾åˆ°å†…ç½®è¿è¡Œæ—¶ã€‚
+        echo [´íÎó] Î´¼ì²âµ½ Node.js£¬·¢²¼°üÖÐÒ²Î´ÕÒµ½ÄÚÖÃÔËÐÐÊ±¡£
         echo.
-        echo è§£å†³åŠžæ³•ï¼š
-        echo   1. é‡æ–°ä¸‹è½½å®Œæ•´å‘å¸ƒåŒ…ï¼ˆåº”åŒ…å« runtime æ–‡ä»¶å¤¹ï¼‰
-        echo   2. æˆ–å®‰è£… Node.js LTSï¼šhttps://nodejs.org
+        echo ½â¾ö°ì·¨£º
+        echo   1. ÖØÐÂÏÂÔØÍêÕû·¢²¼°ü£¨Ó¦°üº¬ runtime ÎÄ¼þ¼Ð£©
+        echo   2. »ò°²×° Node.js LTS£ºhttps://nodejs.org
         echo.
         pause
         exit /b 1
     )
     set "NODE_EXE=node"
 )
-echo [2/4] Node.js å°±ç»ª
+echo [2/4] Node.js ¾ÍÐ÷
 
-rem ---------- 2) ç«¯å£æ˜¯å¦å·²è¢«å ç”¨ï¼ˆæœåŠ¡å¯èƒ½å·²åœ¨è¿è¡Œï¼‰ ----------
+rem ---------- 2) ¶Ë¿ÚÊÇ·ñÒÑ±»Õ¼ÓÃ£¨·þÎñ¿ÉÄÜÒÑÔÚÔËÐÐ£© ----------
 netstat -ano | findstr ":%PORT% " | findstr "LISTENING" >nul 2>nul
 if not errorlevel 1 goto OPEN
 
-rem ---------- 3) åŽå°å¯åŠ¨æœåŠ¡ï¼ˆæœ€å°åŒ–çª—å£ï¼Œä¾¿äºŽæ—¥åŽå…³é—­ï¼‰ ----------
-echo [3/4] æ­£åœ¨å¯åŠ¨æœ¬åœ°æœåŠ¡ï¼Œè¯·ç¨å€™...
-start "MS-AgentæœåŠ¡" /min "%NODE_EXE%" 20_æ‰§è¡Œ\server.js
+rem ---------- 3) ºóÌ¨Æô¶¯·þÎñ£¨×îÐ¡»¯´°¿Ú£¬±ãÓÚÈÕºó¹Ø±Õ£© ----------
+echo [3/4] ÕýÔÚÆô¶¯±¾µØ·þÎñ£¬ÇëÉÔºò...
+start "MS-Agent·þÎñ" /min "%NODE_EXE%" 20_Ö´ÐÐ\server.js
 
-rem è½®è¯¢ç­‰å¾…ç«¯å£å°±ç»ªï¼ˆæœ€å¤š 20 ç§’ï¼‰
+rem ÂÖÑ¯µÈ´ý¶Ë¿Ú¾ÍÐ÷£¨×î¶à 20 Ãë£©
 set /a N=0
 :WAIT
 netstat -ano | findstr ":%PORT% " | findstr "LISTENING" >nul 2>nul
@@ -75,25 +74,25 @@ goto WAIT
 
 :FAIL
 echo.
-echo [é”™è¯¯] æœåŠ¡å¯åŠ¨å¤±è´¥æˆ–è¶…æ—¶ï¼ˆ20 ç§’ï¼‰ã€‚å¯èƒ½åŽŸå› ï¼š
-echo   1. ç«¯å£ %PORT% è¢«å…¶ä»–ç¨‹åºå ç”¨ â†’ å…³é—­å ç”¨ç¨‹åºåŽé‡è¯•
-echo   2. 20_æ‰§è¡Œ\config.json é…ç½®æŸå â†’ åˆ é™¤è¯¥æ–‡ä»¶åŽé‡è¯•ï¼ˆä¼šåœ¨ç½‘é¡µé‡æ–°é…ç½®ï¼‰
-echo   3. å†…ç½®ä¾èµ–è§£åŽ‹ä¸å®Œæ•´ â†’ åˆ é™¤ 20_æ‰§è¡Œ\node_modules åŽé‡æ–°åŒå‡»æœ¬æ–‡ä»¶ï¼ˆä¼šé‡æ–°è§£åŽ‹ï¼‰
-echo   4. Node.js ç‰ˆæœ¬è¿‡æ—§ â†’ è¯·åˆ é™¤ runtime\node åŽé‡æ–°åŒå‡»æœ¬æ–‡ä»¶ï¼ˆä¼šé‡æ–°è§£åŽ‹å†…ç½®ç‰ˆæœ¬ï¼‰
+echo [´íÎó] ·þÎñÆô¶¯Ê§°Ü»ò³¬Ê±£¨20 Ãë£©¡£¿ÉÄÜÔ­Òò£º
+echo   1. ¶Ë¿Ú %PORT% ±»ÆäËû³ÌÐòÕ¼ÓÃ ¡ú ¹Ø±ÕÕ¼ÓÃ³ÌÐòºóÖØÊÔ
+echo   2. 20_Ö´ÐÐ\config.json ÅäÖÃËð»µ ¡ú É¾³ý¸ÃÎÄ¼þºóÖØÊÔ£¨»áÔÚÍøÒ³ÖØÐÂÅäÖÃ£©
+echo   3. ÄÚÖÃÒÀÀµ½âÑ¹²»ÍêÕû ¡ú É¾³ý 20_Ö´ÐÐ\node_modules ºóÖØÐÂË«»÷±¾ÎÄ¼þ£¨»áÖØÐÂ½âÑ¹£©
+echo   4. Node.js °æ±¾¹ý¾É ¡ú ÇëÉ¾³ý runtime\node ºóÖØÐÂË«»÷±¾ÎÄ¼þ£¨»áÖØÐÂ½âÑ¹ÄÚÖÃ°æ±¾£©
 echo.
-echo   ä¹Ÿå¯æ‰‹åŠ¨å¯åŠ¨æŽ’æŸ¥ï¼šåœ¨ 20_æ‰§è¡Œ ç›®å½•è¿è¡Œ  node server.js
+echo   Ò²¿ÉÊÖ¶¯Æô¶¯ÅÅ²é£ºÔÚ 20_Ö´ÐÐ Ä¿Â¼ÔËÐÐ  node server.js
 echo.
 pause
 exit /b 1
 
 :OPEN
-echo [4/4] æœåŠ¡å·²å°±ç»ªï¼Œæ­£åœ¨æ‰“å¼€æµè§ˆå™¨...
+echo [4/4] ·þÎñÒÑ¾ÍÐ÷£¬ÕýÔÚ´ò¿ªä¯ÀÀÆ÷...
 start "" "http://127.0.0.1:%PORT%/"
 echo.
-echo å·²è‡ªåŠ¨æ‰“å¼€æµè§ˆå™¨ï¼›å¦‚æœªæ‰“å¼€ï¼Œè¯·æ‰‹åŠ¨è®¿é—®ï¼šhttp://127.0.0.1:%PORT%/
+echo ÒÑ×Ô¶¯´ò¿ªä¯ÀÀÆ÷£»ÈçÎ´´ò¿ª£¬ÇëÊÖ¶¯·ÃÎÊ£ºhttp://127.0.0.1:%PORT%/
 echo.
-echo ä½¿ç”¨å®Œå¯åœ¨ä»»åŠ¡æ æ‰¾åˆ°"MS-AgentæœåŠ¡"æœ€å°åŒ–çª—å£å¹¶å…³é—­å®ƒæ¥åœæ­¢æœåŠ¡ã€‚
-echo ï¼ˆå…³é—­æœ¬çª—å£ä¸å½±å“æœåŠ¡è¿è¡Œï¼‰
+echo Ê¹ÓÃÍê¿ÉÔÚÈÎÎñÀ¸ÕÒµ½"MS-Agent·þÎñ"×îÐ¡»¯´°¿Ú²¢¹Ø±ÕËüÀ´Í£Ö¹·þÎñ¡£
+echo £¨¹Ø±Õ±¾´°¿Ú²»Ó°Ïì·þÎñÔËÐÐ£©
 echo.
 timeout /t 8 /nobreak >nul
 exit /b 0
