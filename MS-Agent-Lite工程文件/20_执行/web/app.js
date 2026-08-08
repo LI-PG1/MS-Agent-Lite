@@ -45,6 +45,7 @@
     btnSaveWebSearch: $("btnSaveWebSearch"), webSearchMsg: $("webSearchMsg"),
     toast: $("toast"), provStatus: $("provStatus"),
     cardApiKey: $("cardApiKey"), keyStatus: $("keyStatus"), selPreset: $("selPreset"), presetHint: $("presetHint"),
+    selModel: $("selModel"),
     kpName: $("kpName"), kpUrl: $("kpUrl"), kpModel: $("kpModel"), kpKey: $("kpKey"),
     btnKeySave: $("btnKeySave"), keyMsg: $("keyMsg")
   };
@@ -69,33 +70,139 @@
     if (el) el.innerHTML = html;
   }
 
-  // 常用平台预置（选择后自动填充；模型名以平台实际提供为准，可手动修改）
-  // 注：Base URL / 模型名以各平台最新官方文档为准，预置仅为常用默认值；选择后仍可手动修改
+  // 常用厂商预置：选择厂商后自动列出该厂商常见模型（models），选中即自动填入配置名称 / 模型名 / 接口地址；
+  // keySample 用于 API Key 输入框的示例提示（随所选厂商 + 模型动态变化）。
+  // 注：Base URL / 模型名以各平台最新官方文档为准，预置仅为常用默认值；展开「确认身份信息」仍可手动修改
   const PRESETS = {
-    zhipu:       { name: "zhipu", baseUrl: "https://open.bigmodel.cn/api/paas/v4/chat/completions", model: "glm-4-flash",
-                   desc: "智谱 AI：模型 glm-4-flash（长期免费），文本生成够用。Base URL 已按官方填入。" },
-    siliconflow: { name: "siliconflow", baseUrl: "https://api.siliconflow.cn/v1/chat/completions", model: "",
-                   desc: "硅基流动：请在「模型广场」挑选模型后填入上方模型名（选一个免费/常用的文本模型即可）。Base URL 已按官方填入。" },
-    deepseek:    { name: "deepseek", baseUrl: "https://api.deepseek.com/v1/chat/completions", model: "deepseek-v4-flash",
-                   desc: "DeepSeek：低成本文本方案（deepseek-v4-flash，价格低、Agent 能力强，新用户送额度）；本版只需一个文本模型，用它即可。若提示模型不存在请以平台「模型列表」为准。Base URL 已按官方填入。" },
-    openai:      { name: "openai", baseUrl: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini",
-                   desc: "OpenAI：国际主流平台，gpt-4o-mini 性价比高。Base URL 已按官方填入；如网络受限请改用国内平台。" },
-    qwen:        { name: "qwen", baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", model: "qwen-plus",
-                   desc: "阿里云百炼（通义千问）：国内平台，常用 qwen-plus；预算敏感可选 qwen-turbo（更便宜）。Base URL 已按官方填入。" },
-    baidu:       { name: "baidu", baseUrl: "https://qianfan.baidubce.com/v2/chat/completions", model: "ernie-4.0-turbo-8k-latest",
-                   desc: "百度千帆（文心一言）：国内平台，常用 ernie-4.0-turbo-8k-latest（低成本档）。Base URL 已按官方填入。" },
-    tencent:     { name: "tencent", baseUrl: "https://api.hunyuan.cloud.tencent.com/v1/chat/completions", model: "hunyuan-lite",
-                   desc: "腾讯混元：国内平台，hunyuan-lite 为免费档，适合文本生成。Base URL 已按官方填入。" },
-    kimi:        { name: "kimi", baseUrl: "https://api.moonshot.cn/v1/chat/completions", model: "moonshot-v1-8k",
-                   desc: "Moonshot Kimi：长文本能力强，常用 moonshot-v1-8k。Base URL 已按官方填入。" },
-    minimax:     { name: "minimax", baseUrl: "https://api.minimax.chat/v1/chat/completions", model: "abab6.5s-chat",
-                   desc: "MiniMax：国内平台。Base URL 与模型名以平台「接入文档」最新信息为准，若自检返回 404 请到控制台核对。" },
-    xfyun:       { name: "xfyun", baseUrl: "https://spark-api-open.xf-yun.com/v1/chat/completions", model: "generalv3.5",
-                   desc: "讯飞星火：国内平台，常用 generalv3.5。Base URL 已按官方填入。" },
-    groq:        { name: "groq", baseUrl: "https://api.groq.com/openai/v1/chat/completions", model: "llama-3.3-70b-versatile",
-                   desc: "Groq：海外平台，推理极快、部分模型有免费额度。Base URL 已按官方填入；如网络受限请改用国内平台。" },
-    openrouter:  { name: "openrouter", baseUrl: "https://openrouter.ai/api/v1/chat/completions", model: "",
-                   desc: "OpenRouter：聚合多家模型。请在模型列表选一个免费/常用模型填入上方模型 ID。Base URL 已按官方填入。" }
+    deepseek: {
+      name: "deepseek", label: "DeepSeek",
+      baseUrl: "https://api.deepseek.com/v1/chat/completions",
+      keySample: "sk-...",
+      models: [
+        { id: "deepseek-v4-flash", note: "低成本、新用户送额度，日常够用" },
+        { id: "deepseek-v4-pro", note: "更强推理，成本更高" }
+      ]
+    },
+    zhipu: {
+      name: "zhipu", label: "智谱 AI",
+      baseUrl: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+      keySample: "长串字母数字",
+      models: [
+        { id: "glm-4-flash", note: "长期免费，文本生成够用" },
+        { id: "glm-4-flash-250414", note: "免费新版本（250414）" },
+        { id: "glm-4-plus", note: "更强，价格较高" },
+        { id: "glm-4v-flash", note: "视觉模型（免费），可看图" }
+      ]
+    },
+    siliconflow: {
+      name: "siliconflow", label: "硅基流动",
+      baseUrl: "https://api.siliconflow.cn/v1/chat/completions",
+      keySample: "sk-...",
+      models: [
+        { id: "Qwen/Qwen2.5-7B-Instruct", note: "开源模型聚合，免费档" },
+        { id: "Qwen/Qwen2.5-72B-Instruct", note: "大杯开源模型" },
+        { id: "deepseek-ai/DeepSeek-V3", note: "DeepSeek 开源版" },
+        { id: "THUDM/GLM-4.1V-9B-Thinking", note: "视觉模型，可看图" }
+      ]
+    },
+    openai: {
+      name: "openai", label: "OpenAI",
+      baseUrl: "https://api.openai.com/v1/chat/completions",
+      keySample: "sk-...",
+      models: [
+        { id: "gpt-4o-mini", note: "性价比高，日常够用" },
+        { id: "gpt-4o", note: "综合能力强" },
+        { id: "gpt-4.1-mini", note: "新一代性价比档" },
+        { id: "gpt-4.1", note: "新一代旗舰档" }
+      ]
+    },
+    qwen: {
+      name: "qwen", label: "阿里云百炼（通义千问）",
+      baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+      keySample: "sk-...",
+      models: [
+        { id: "qwen-plus", note: "综合平衡，推荐" },
+        { id: "qwen-turbo", note: "更便宜" },
+        { id: "qwen-max", note: "最强" },
+        { id: "qwen-vl-plus", note: "视觉模型，可看图" }
+      ]
+    },
+    baidu: {
+      name: "baidu", label: "百度千帆（文心一言）",
+      baseUrl: "https://qianfan.baidubce.com/v2/chat/completions",
+      keySample: "长串字母数字",
+      models: [
+        { id: "ernie-4.0-turbo-8k-latest", note: "低成本档" },
+        { id: "ernie-4.0-turbo-128k", note: "长上下文档" },
+        { id: "ernie-4.0-8k-latest", note: "更强" },
+        { id: "ernie-3.5-8k", note: "经典档" }
+      ]
+    },
+    tencent: {
+      name: "tencent", label: "腾讯混元",
+      baseUrl: "https://api.hunyuan.cloud.tencent.com/v1/chat/completions",
+      keySample: "长串字母数字",
+      models: [
+        { id: "hunyuan-lite", note: "免费档" },
+        { id: "hunyuan-standard", note: "标准档" },
+        { id: "hunyuan-pro", note: "旗舰档" },
+        { id: "hunyuan-turbo", note: "快速档" }
+      ]
+    },
+    kimi: {
+      name: "kimi", label: "Moonshot Kimi",
+      baseUrl: "https://api.moonshot.cn/v1/chat/completions",
+      keySample: "sk-...",
+      models: [
+        { id: "moonshot-v1-8k", note: "短上下文，最便宜" },
+        { id: "moonshot-v1-32k", note: "中等上下文" },
+        { id: "moonshot-v1-128k", note: "长上下文" },
+        { id: "kimi-latest", note: "最新模型" }
+      ]
+    },
+    minimax: {
+      name: "minimax", label: "MiniMax",
+      baseUrl: "https://api.minimax.chat/v1/chat/completions",
+      keySample: "eyJ...(JWT)",
+      models: [
+        { id: "abab6.5s-chat", note: "轻量档" },
+        { id: "abab6.5g-chat", note: "标准档" },
+        { id: "MiniMax-Text-01", note: "新一代文本模型" }
+      ]
+    },
+    xfyun: {
+      name: "xfyun", label: "讯飞星火",
+      baseUrl: "https://spark-api-open.xf-yun.com/v1/chat/completions",
+      keySample: "APIKey/APISecret（控制台）",
+      models: [
+        { id: "generalv3.5", note: "常用档" },
+        { id: "generalv3", note: "经典档" },
+        { id: "4.0Ultra", note: "旗舰档" },
+        { id: "lite", note: "轻量免费档" }
+      ]
+    },
+    groq: {
+      name: "groq", label: "Groq",
+      baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+      keySample: "gsk_...",
+      models: [
+        { id: "llama-3.3-70b-versatile", note: "推理极快" },
+        { id: "llama-3.1-8b-instant", note: "轻量快档" },
+        { id: "qwen/qwen-2.5-32b", note: "Qwen 开源版" },
+        { id: "gemma2-9b-it", note: "Gemma 开源版" }
+      ]
+    },
+    openrouter: {
+      name: "openrouter", label: "OpenRouter（模型聚合）",
+      baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+      keySample: "sk-or-...",
+      models: [
+        { id: "deepseek/deepseek-chat-v3-0324", note: "DeepSeek 聚合" },
+        { id: "meta-llama/llama-3.3-70b-instruct", note: "Llama 聚合" },
+        { id: "qwen/qwen-2.5-72b-instruct", note: "Qwen 聚合" },
+        { id: "google/gemini-2.0-flash-exp", note: "Gemini 聚合" }
+      ]
+    }
   };
   // 能力分类选择 → cap 能力标签（系统文本生成需 text，图片理解 / OCR 需 vision；纯文本最省额度）
   // 纯文本版：默认只需 text 能力，vision 仅作图片识别兜底（可选）
@@ -144,25 +251,47 @@
     els.keyMsg.textContent = text;
     els.keyMsg.className = "mini" + (cls ? " " + cls : "");
   }
-  // 平台预置：选平台自动填入配置名称 / 模型名 / 接口地址；默认 DeepSeek，页面加载即生效
+  // 厂商预置：选厂商 → 自动列出常见模型（② 选择模型）→ 选中自动填入配置名称 / 模型名 / 接口地址；默认 DeepSeek，页面加载即生效
   function updatePresetHint() {
     const p = PRESETS[els.selPreset.value];
     els.presetHint.textContent = p
-      ? "已按「" + (p.name === "deepseek" ? "DeepSeek" : p.name) + "」自动填入配置名称 / 模型名 / 接口地址；粘贴 Key 后即可保存自检。"
+      ? "已按「" + (p.label || p.name) + "」自动填好配置名称 / 接口地址；在「② 选择模型」选中一个模型后，粘贴 API Key 即可保存自检。"
       : "";
+  }
+  // 选中的模型同步到「⑤ 模型名」输入框，并把 API Key 输入框提示换为该厂商 + 该模型的示例（v0.4.16）
+  function applyModel() {
+    const p = PRESETS[els.selPreset.value];
+    const m = els.selModel.value;
+    if (m) els.kpModel.value = m;
+    els.kpModel.placeholder = m ? "" : "如 glm-4-flash（从平台「模型列表 / 接入文档」复制）";
+    els.kpKey.placeholder = p
+      ? "粘贴 " + (p.label || p.name) + " API Key（" + (p.keySample || "控制台创建") + "）· 模型 " + (m || "待选")
+      : "sk-... 或 xxxx.yyyy（完整密钥）";
   }
   function applyPreset() {
     const p = PRESETS[els.selPreset.value];
-    if (p) {
-      els.kpName.value = p.name;
-      els.kpUrl.value = p.baseUrl;
-      els.kpModel.value = p.model;
-      els.kpModel.placeholder = p.model ? "" : "如 Qwen/Qwen2.5-72B-Instruct（在模型广场选一个免费模型）";
-    }
+    if (!p) return;
+    els.kpName.value = p.name;
+    els.kpUrl.value = p.baseUrl;
+    const sel = els.selModel;
+    const prev = els.kpModel.value;
+    sel.innerHTML = "";
+    (p.models || []).forEach(m => {
+      const o = document.createElement("option");
+      o.value = m.id;
+      o.textContent = m.note ? m.id + "（" + m.note + "）" : m.id;
+      sel.appendChild(o);
+    });
+    if (prev && (p.models || []).some(m => m.id === prev)) sel.value = prev;
+    applyModel();
     updatePresetHint();
   }
   els.selPreset.addEventListener("change", () => {
     applyPreset();
+    setKeyMsg("", "");
+  });
+  els.selModel.addEventListener("change", () => {
+    applyModel();
     setKeyMsg("", "");
   });
   applyPreset(); // 页面加载即默认选中 DeepSeek 并自动填入
@@ -181,11 +310,11 @@
     if (!body.model) missing.push("⑤ 模型名");
     if (!body.baseUrl) missing.push("⑥ Base URL");
     if (missing.length) {
-      setKeyMsg("err", "缺少必填项：" + missing.join("、") + "——可先在上方「🔑 第 1 步」①选择平台自动填入，再核对修改");
+      setKeyMsg("err", "缺少必填项：" + missing.join("、") + "——可先在上方「🔑 第 1 步」①选择厂商 + ②选择模型自动填入，再核对修改");
       return;
     }
     if (!/^https?:\/\//i.test(body.baseUrl)) { setKeyMsg("err", "⑥ Base URL 格式不对：需以 http:// 或 https:// 开头（如 https://api.xxx.com/v1/chat/completions）"); return; }
-    if (!body.apiKey) { setKeyMsg("err", "请粘贴 API Key（② 输入框）——它是调用大模型的凭证，不可为空"); return; }
+    if (!body.apiKey) { setKeyMsg("err", "请粘贴 API Key（③ 输入框）——它是调用大模型的凭证，不可为空"); return; }
     els.btnKeySave.disabled = true;
     setKeyMsg("", "保存并自检中…（真实请求，约需几秒）");
     try {
@@ -621,7 +750,7 @@
     try { providers = (await api("/api/providers")).providers; state.providers = providers; } catch (e) { providers = []; }
     const hasTextKey = providers.some(p => p.enabled && p.hasKey && (p.cap || []).includes("text"));
     if (!hasTextKey) {
-      els.inputError.textContent = "还没有可用的 API Key：请先在顶部第 1 步选平台、填 Key，点「保存并自检」";
+      els.inputError.textContent = "还没有可用的 API Key：请先在顶部第 1 步选厂商、选模型、填 Key，点「保存并自检」";
       els.cardApiKey.scrollIntoView({ behavior: "smooth", block: "center" });
       els.cardApiKey.classList.add("flash");
       setTimeout(() => els.cardApiKey.classList.remove("flash"), 2600);
@@ -729,10 +858,10 @@
       els.keyStatus.innerHTML = "🟡 已保存 " + usable.length + " 个配置，但<b>尚未验证真实可用</b>。请点「💾 保存并自检」完成验证（通过后状态条变绿）；若失败，请按提示核对 API Key / Base URL / 模型名。";
     } else if (providers.length) {
       els.keyStatus.className = "key-status warn";
-      els.keyStatus.innerHTML = "⚠ 已保存 " + providers.length + " 个 Key，但均<b>缺少文本生成能力</b>（cap 需含 text）。生成面试材料必须有文本模型，请按上方「🔑 第 1 步 → 🧠 第 2 步」补配。";
+      els.keyStatus.innerHTML = "⚠ 已保存 " + providers.length + " 个 Key，但均<b>缺少文本生成能力</b>（cap 需含 text）。生成面试材料必须有文本模型，请重新点「💾 保存并自检」。";
     } else {
       els.keyStatus.className = "key-status warn";
-      els.keyStatus.innerHTML = "⚠ 尚未配置 API Key，目前无法生成材料。请按上方引导：「🔑 第 1 步」①选平台 → ②粘贴 Key →「🧠 第 2 步」选能力 → 点「💾 保存并自检」，状态条变绿即完成。";
+      els.keyStatus.innerHTML = "⚠ 尚未配置 API Key，目前无法生成材料。请按上方引导：「🔑 第 1 步」①选厂商 → ②选模型 → ③粘贴 Key → 点「💾 保存并自检」，状态条变绿即完成。";
     }
   }
   async function loadProviders() {
