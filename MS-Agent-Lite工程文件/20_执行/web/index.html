@@ -283,7 +283,6 @@
       <div class="p-txt"><b>生成结果</b><em>一键生成 · 预览 / 打印 / 分享</em></div>
     </li>
   </ol>
-  <div class="rail-note">💡 左侧显示使用进度，右侧显示当前操作的说明；中间内容区可上下滚动。</div>
 </aside>
 
 <div class="wrap">
@@ -295,27 +294,26 @@
 
   <!-- ① API Key（一站式第一步：三步引导 + 多模型管理入口） -->
   <section class="card" id="cardApiKey">
-    <h2><span class="step-no">1</span>大模型 API Key <span class="hint">MS-Agent-Lite 调用大模型的"钥匙"，怎么领见《使用指南.html》第 2 步</span></h2>
+    <h2><span class="step-no">1</span>大模型 API Key</h2>
     <div class="key-status warn" id="keyStatus">正在检查配置…</div>
 
     <!-- 配置逻辑引导条：钥匙 → 能力 → 保存验证 → 高级设置（可选） -->
     <div class="flow-steps">
       <div class="flow-step"><b><span class="fs-no">1</span>粘贴钥匙</b>选平台 → 粘贴 API Key</div>
-      <div class="flow-step"><b><span class="fs-no">2</span>选择能力</b>告诉 MS-Agent-Lite 你的模型能做什么（不懂选「纯文本」即可）</div>
+      <div class="flow-step"><b><span class="fs-no">2</span>选择能力</b>默认「纯文本」即可</div>
       <div class="flow-step"><b><span class="fs-no">3</span>保存验证</b>点「💾 保存并自检」，状态条变绿即成功</div>
       <div class="flow-step optional"><b><span class="fs-no alt">4</span>高级设置（可选）</b>多个模型 → 右上「⚙ 高级设置」</div>
     </div>
 
     <!-- 第 1 组：钥匙（平台 + API Key） -->
     <div class="field-group">
-      <div class="fg-title"><span class="fg-badge key">🔑 选平台 + 粘贴钥匙</span><span>告诉 MS-Agent-Lite「用哪家平台、用哪个钥匙」</span></div>
+      <div class="fg-title"><span class="fg-badge key">🔑 选平台 + 粘贴钥匙</span></div>
       <div class="field">
-        <label>① 选择平台（选常用平台可自动填入下方身份信息，也可选「手动填写」自行输入）</label>
+        <label>① 选择平台</label>
         <select id="selPreset">
-          <option value="">手动填写（自定义）</option>
+          <option value="deepseek" selected>DeepSeek（默认）</option>
           <option value="zhipu">智谱 AI</option>
           <option value="siliconflow">硅基流动</option>
-          <option value="deepseek">DeepSeek</option>
           <option value="openai">OpenAI</option>
           <option value="qwen">阿里云百炼（通义千问）</option>
           <option value="baidu">百度千帆（文心一言）</option>
@@ -326,41 +324,29 @@
           <option value="groq">Groq</option>
           <option value="openrouter">OpenRouter（模型聚合）</option>
         </select>
-        <div class="hint-line" id="presetHint">选择平台后将自动填入配置名称 / Base URL / 模型（均可再修改）；选「手动填写」则从空白开始，按服务商文档填写。</div>
+        <div class="hint-line" id="presetHint">选择平台后将自动填入配置名称 / 模型名 / 接口地址；确认所选平台后，只需粘贴 API Key。</div>
       </div>
       <div class="field">
-        <label>② API Key（从服务商控制台获取；首次填写，之后可留空）</label>
+        <label>② API Key</label>
         <input type="password" id="kpKey" placeholder="sk-... 或 xxxx.yyyy（完整密钥）">
-        <div class="hint-line">Key 是平台生成的一长串密钥字符，需完整粘贴、前后无空格；不知道怎么拿 Key？打开上面平台的官网注册 → 实名认证 → 创建 API Key → 复制。或回看项目根目录《使用指南.html》第 2 步。</div>
       </div>
     </div>
 
     <!-- 第 2 组：能力（本版只需文本能力） -->
     <div class="field-group">
-      <div class="fg-title"><span class="fg-badge cap">🧠 选择能力类型</span><span>本版只需「文本能力」即可完整使用，识图由 MS-Agent-Lite 自动处理</span></div>
+      <div class="fg-title"><span class="fg-badge cap">🧠 选择能力类型</span></div>
       <div class="field">
-        <label>③ 模型能力（本版选择「文本能力模型」即可）</label>
+        <label>③ 模型能力</label>
         <select id="kpCap">
-          <option value="text">文本能力模型：只能生成文字，满足本版全部需求；绝大多数模型选它</option>
-          <option value="textvision">识图能力模型（可选）：在文字基础上多了看图 / 读图，可作图片识别兜底；不配置也不影响使用</option>
+          <option value="text">文本能力模型：只生成文字，满足本版全部需求（默认）</option>
+          <option value="textvision">识图能力模型（可选）：在文字基础上多了看图 / 读图，可作图片识别兜底</option>
         </select>
-        <div class="hint-line">要点：<br>
-          · <b>文本能力模型</b>：只需配置<b>一个文本模型</b>即可完整使用本版（如 deepseek-v4-flash 等纯文本模型），生成的面试材料质量与视觉版相当。<br>
-          · <b>识图能力模型（可选）</b>：若手头已有视觉模型也可配置，仅作图片识别的备用路径；不配置完全不影响使用。<br>
-          · <b>关系</b>：两类都能正常生成面试材料；识别图片文字（如简历扫描件）由 MS-Agent-Lite 自动处理，无需专门配置。
-        </div>
-        <div class="analogy">
-          <b>📌 识图方式说明：</b>本版只需<b>一个文本模型</b>即可完整使用。简历扫描件 / 图片中的文字由 MS-Agent-Lite 内置的本地离线识别自动处理（开箱即用），无需额外配置视觉模型，也无需联网。
-        </div>
-        <div class="tip-card">
-          💡 <b>想配置多个文本模型做备用？</b>第 1 步每次保存<b>一个</b>配置，保存后「大模型 API Key」输入框会自动清空，可直接粘贴下一个平台的 Key 继续配置；右上角「⚙ 高级设置」是统一管理全部模型配置与 API Key 的核心界面，可再添加，所有配置都会列在那里，顺序即调用优先级。
-        </div>
       </div>
     </div>
 
-    <!-- 身份信息（选平台后已自动填好，默认折叠；「手动填写」时展开补全） -->
+    <!-- 身份信息（选平台后已自动填好，默认折叠） -->
     <details class="field-group fg-collapse">
-      <summary class="fg-title"><span class="fg-badge id">📋 确认身份信息</span><span>选平台后已自动填好，通常无需修改；「手动填写」时需展开补全</span></summary>
+      <summary class="fg-title"><span class="fg-badge id">📋 确认身份信息</span><span>选平台后已自动填好，通常无需修改</span></summary>
       <div class="field">
         <label>④ 配置名称（自定义标签，仅用于界面中区分不同平台/账号）</label>
         <input type="text" id="kpName" placeholder="如 zhipu 或 my-key-1（建议用平台名或用途命名）">
@@ -372,20 +358,6 @@
       <div class="field">
         <label>⑥ 接口地址（Base URL）：服务商提供的 API 网址，必须以 /chat/completions 结尾</label>
         <input type="text" id="kpUrl" placeholder="https://api.xxx.com/v1/chat/completions">
-        <details class="hint-line" style="margin-top:6px">
-          <summary style="cursor:pointer;color:var(--accent)">❓ 什么是 Base URL？怎么获取？（点开查看说明）</summary>
-          <div style="margin-top:8px;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;line-height:1.8">
-            <b>① 定义</b>：Base URL 是你所选的模型平台对外提供「OpenAI 兼容接口」的<b>完整网址</b>。程序通过它把你的请求发送到该平台，因此必须一字不差地复制平台官方给出的地址，且以 <code>/chat/completions</code> 结尾。<br><br>
-            <b>② 获取方法</b>：登录该平台官网 → 进入「控制台 / API 密钥 / 接入文档」页面 → 找到名为「接口地址 / Base URL / API Endpoint」的字段 → 点复制。不要复制网页首页地址（如 open.bigmodel.cn），那只是官网首页，不是接口地址。<br><br>
-            <b>③ 正确格式示例</b>（各平台官方地址，选平台可自动填入）：<br>
-            · 智谱 AI：<code>https://open.bigmodel.cn/api/paas/v4/chat/completions</code><br>
-            · 硅基流动：<code>https://api.siliconflow.cn/v1/chat/completions</code><br>
-            · DeepSeek：<code>https://api.deepseek.com/v1/chat/completions</code><br>
-            · 阿里百炼（通义）：<code>https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions</code><br>
-            · OpenAI：<code>https://api.openai.com/v1/chat/completions</code><br>
-            全部以 <code>https://</code> 开头、以 <code>/chat/completions</code> 结尾；以各平台最新官方文档为准，可手动修正。
-          </div>
-        </details>
       </div>
       <div class="field">
         <div class="analogy">
@@ -600,12 +572,12 @@
            "<p><b>获取方式</b>：去所选平台官网注册 → 实名认证 → 进入「控制台 / API 密钥」→ 创建 API Key → 复制。</p>" +
            "<ul><li><b>格式</b>：一长串字符（如 <code>sk-...</code>），需完整粘贴、前后无空格；首次填写，之后可留空。</li>" +
            "<li><b>安全</b>：Key 仅保存在你本机 <code>config.json</code>，不会上传任何服务器；请勿发到公开渠道。</li></ul>",
-        f: "本版只需配置一个文本模型即可完整使用；不知道去哪拿 Key？回看《使用指南.html》第 2 步。"
+        f: "本版只需配置一个文本模型即可完整使用；不知道去哪拿 Key？回看《使用指南.html》第 2 步。Key 仅保存在本机，不会上传。"
       },
       selPreset: {
         t: "① 选择平台",
-        h: "<p>选择你已注册的平台（智谱 / 硅基流动 / DeepSeek / OpenAI 等），程序会<b>自动填入</b>该平台的接口地址与常用模型名。</p><p>不选则从空白开始，需按服务商文档手动填写。</p>",
-        f: "选「手动填写」= 自己粘贴服务商文档里的地址与模型名。"
+        h: "<p>默认 <b>DeepSeek</b>（低成本、新用户送额度），点击下拉可切换到其他平台（智谱 / 硅基流动 / OpenAI 等）。</p><p>概念区分：<b>平台</b>= 你从哪家服务商申请 API Key；<b>模型</b>= 该平台上具体用的模型（选平台后自动填入）；<b>配置名称</b>= 你给这套配置起的标签。</p><p>选择后程序会<b>自动填入</b>该平台的配置名称、模型名与接口地址，无需手动填写。</p>",
+        f: "选平台后粘贴 API Key 即可保存自检；大多数用户保持默认 DeepSeek 即可。"
       },
       kpCap: {
         t: "③ 模型能力（文本即可）",

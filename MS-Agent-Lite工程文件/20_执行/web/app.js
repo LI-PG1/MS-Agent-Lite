@@ -139,28 +139,28 @@
     els.keyMsg.textContent = text;
     els.keyMsg.className = "mini" + (cls ? " " + cls : "");
   }
-  // 平台预置：选平台自动填入；选「手动填写」则清空已填充值、从空白开始，确保可自由输入
+  // 平台预置：选平台自动填入配置名称 / 模型名 / 接口地址；默认 DeepSeek，页面加载即生效
   function updatePresetHint() {
     const p = PRESETS[els.selPreset.value];
     els.presetHint.textContent = p
-      ? p.desc
-      : "可直接输入；Base URL 与模型名请按服务商文档填写。";
+      ? "已按「" + (p.name === "deepseek" ? "DeepSeek" : p.name) + "」自动填入配置名称 / 模型名 / 接口地址；粘贴 Key 后即可保存自检。"
+      : "";
   }
-  els.selPreset.addEventListener("change", () => {
+  function applyPreset() {
     const p = PRESETS[els.selPreset.value];
     if (p) {
       els.kpName.value = p.name;
       els.kpUrl.value = p.baseUrl;
       els.kpModel.value = p.model;
       els.kpModel.placeholder = p.model ? "" : "如 Qwen/Qwen2.5-72B-Instruct（在模型广场选一个免费模型）";
-    } else {
-      els.kpName.value = "";
-      els.kpUrl.value = "";
-      els.kpModel.value = "";
     }
     updatePresetHint();
+  }
+  els.selPreset.addEventListener("change", () => {
+    applyPreset();
+    setKeyMsg("", "");
   });
-  updatePresetHint();
+  applyPreset(); // 页面加载即默认选中 DeepSeek 并自动填入
   // 保存并自检：先写入 config.json，再做一次真实最小请求验证
   els.btnKeySave.addEventListener("click", async () => {
     const body = {
