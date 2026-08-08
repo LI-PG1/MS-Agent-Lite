@@ -28,10 +28,15 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
           REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: |
-          # 删除该 tag 现有 release（含重打 tag 时 GitHub 自动恢复的旧版本安装包），再全新创建，
-          # 保证 Release 只含本次构建产物、不残留旧版本号安装包
-          gh release delete "$TAG" --repo "$REPO" --yes 2>/dev/null || true
+          # 幂等发布：该 tag 已有 release（含重打 tag 时 GitHub 恢复的旧版）则先删除，再全新创建，
+          # 保证只含本次构建产物、不残留旧版本号安装包；
+          # GH_PROMPT_DISABLED=1 禁止 gh 交互确认（Actions 无 TTY 时会挂起等待 stdin）
+          if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            echo "Deleting existing release for $TAG"
+            gh release delete "$TAG" --repo "$REPO" --yes
+          fi
           gh release create "$TAG" --repo "$REPO" tools/_dist/*.exe --generate-notes
