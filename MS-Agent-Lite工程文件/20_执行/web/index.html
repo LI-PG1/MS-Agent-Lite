@@ -283,6 +283,7 @@
       <div class="p-txt"><b>生成结果</b><em>一键生成 · 预览 / 打印 / 分享</em></div>
     </li>
   </ol>
+  <div class="rail-note" id="railNote">开始：第 1 步 粘贴 API Key → 保存并自检</div>
 </aside>
 
 <div class="wrap">
@@ -387,7 +388,7 @@
           <span id="fileParseState" class="hint-line"></span>
         </div>
         <div class="resume-preview" id="resumePreview"></div>
-        <div class="hint-line upload-tip">支持格式：<b>PDF（文字版）</b> / <b>Word（docx）</b> / <b>txt</b> / <b>markdown</b>；简历仅用于本次生成，不会保存到本机。</div>
+        <div class="hint-line upload-tip">支持格式：<b>PDF（文字版）</b> / <b>Word（docx）</b> / <b>txt</b> / <b>markdown</b>。</div>
       </div>
       <div class="field full">
         <label class="field-label">岗位 JD 链接<span class="opt">(可选)</span></label>
@@ -418,7 +419,6 @@
     </div>
     <div class="row" style="margin-top:14px">
       <button class="btn" id="btnStart">🚀 一键生成面试材料</button>
-      <button class="btn ghost" id="btnFillSample">填入示例（先试试效果）</button>
       <span id="inputError" style="color:var(--err);font-size:12.5px"></span>
     </div>
     <div class="cost-tip">💰 成本参考：单次完整生成约 <b>0.2 元</b>（约 15 万 tokens，DeepSeek-V4-flash 官方现价；工作日高峰时段约翻倍）——远低于人工准备面试资料的成本。</div>
@@ -468,7 +468,7 @@
     <div class="help-title" id="helpTitle">👋 欢迎使用 MS-Agent-Lite</div>
     <div class="help-body" id="helpBody">点击 / 聚焦中间任意输入项，右侧会显示该操作的详细说明。</div>
   </div>
-  <div class="help-foot" id="helpFoot">所有数据仅保存在你本机，不会上传到任何服务器。</div>
+  <div class="help-foot" id="helpFoot">使用主线：① 配置 API Key → ② 填写材料 → ③ 一键生成。</div>
 </aside>
 
 </div>
@@ -544,15 +544,15 @@
       __default__: {
         t: "👋 欢迎使用 MS-Agent-Lite",
         h: "<p>点击 / 聚焦中间任意输入项，右侧会显示该操作的详细说明。</p><p>使用主线：<b>① 配置 API Key → ② 填写材料 → ③ 一键生成</b>。</p>",
-        f: "所有数据仅保存在你本机，不会上传到任何服务器。"
+        f: "使用主线：① 配置 API Key → ② 填写材料 → ③ 一键生成。"
       },
       kpKey: {
         t: "🔑 API Key 是什么？",
         h: "<p><b>作用</b>：MS-Agent-Lite 调用大模型的“钥匙”。没有它，程序无法请求模型生成材料。</p>" +
            "<p><b>获取方式</b>：去所选平台官网注册 → 实名认证 → 进入「控制台 / API 密钥」→ 创建 API Key → 复制。</p>" +
            "<ul><li><b>格式</b>：一长串字符（如 <code>sk-...</code>），需完整粘贴、前后无空格；首次填写，之后可留空。</li>" +
-           "<li><b>安全</b>：Key 仅保存在你本机 <code>config.json</code>，不会上传任何服务器；请勿发到公开渠道。</li></ul>",
-        f: "本版只需配置一个文本模型即可完整使用；不知道去哪拿 Key？回看《使用指南.html》第 2 步。Key 仅保存在本机，不会上传。"
+           "<li><b>安全</b>：Key 请勿发到公开渠道 / 群聊，若不慎泄露请立即去平台重置。</li></ul>",
+        f: "本版只需配置一个文本模型即可完整使用；不知道去哪拿 Key？回看《使用指南.html》第 2 步。"
       },
       selPreset: {
         t: "① 选择平台",
@@ -592,8 +592,7 @@
       dropResume: {
         t: "📄 简历上传",
         h: "<p>点击或拖拽简历文件到上传区。支持格式：<b>PDF / Word（docx）/ txt / markdown</b>。</p>" +
-           "<p>扫描件 / 拍照 / 图片型 PDF 也能用：本版会<b>自动尝试本地离线识别</b>提取图片中的文字（开箱即用、无需配置）。</p>" +
-           "<p>简历仅用于本次生成（作为项目与数字的主要依据），<b>不会保存到本机</b>。</p>",
+           "<p>扫描件 / 拍照 / 图片型 PDF 也能用：本版会<b>自动尝试本地离线识别</b>提取图片中的文字（开箱即用、无需配置）。</p>",
         f: "生成的材料基于这份简历，请确保是最新版本。"
       },
       inpJdUrl: {
