@@ -24,35 +24,14 @@ jobs:
           RELEASE_VERSION: ${{ github.ref_name }}
         run: powershell -ExecutionPolicy Bypass -File tools/build-release.ps1
 
-      - name: Remove stale installer assets
-        shell: pwsh
+      - name: Publish to Release
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: |
-          # 清理该 tag 已有 Release 中的旧 setup 资产（重打同一 tag 时会残留旧版本安装包）；
-          # Release 不存在（404）时静默跳过，不阻塞上传
-          try {
-            $hdr = @{ 'Authorization' = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'ps'; 'Accept' = 'application/vnd.github+json' }
-            $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/$env:REPO/releases/tags/$env:TAG" -Headers $hdr -SkipHttpErrorCheck
-            if ($rel.id) {
-              foreach ($a in $rel.assets) {
-                if ($a.name -like '*-setup.exe') {
-                  Write-Host "Removing stale asset: $($a.name)"
-                  Invoke-RestMethod -Method Delete -Uri "https://api.github.com/repos/$env:REPO/releases/assets/$($a.id)" -Headers $hdr -SkipHttpErrorCheck | Out-Null
-                }
-              }
-            } else {
-              Write-Host "No existing release for tag $env:TAG, nothing to clean"
-            }
-          } catch {
-            Write-Host "Cleanup skipped: $($_.Exception.Message)"
-          }
-
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: tools/_dist/MS-Agent-Lite-v*.exe
-          generate_release_notes: true
-          overwrite: true
+          # 删除该 tag 现有 release（含重打 tag 时 GitHub 自动恢复的旧版本安装包），再全新创建，
+          # 保证 Release 只含本次构建产物、不残留旧版本号安装包
+          gh release delete "$TAG" --repo "$REPO" --yes 2>/dev/null || true
+          gh release create "$TAG" --repo "$REPO" tools/_dist/*.exe --generate-notes
