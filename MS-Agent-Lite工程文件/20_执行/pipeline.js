@@ -297,8 +297,8 @@ function runChild(args) {
     child.on("close", () => clearTimeout(timer));
   });
 }
-function runBuild(comp, ver, contact) {
-  return runChild([path.join(TOOLS, "build.js"), comp, ver, contact || ""]).then(r => {
+function runBuild(comp, ver) {
+  return runChild([path.join(TOOLS, "build.js"), comp, ver]).then(r => {
     if (!r.ok) throw r.error;
     return r.stdout;
   });
@@ -452,7 +452,7 @@ async function runGenerate(input, handlers = {}) {
   let build = null;
   onProgress({ type: "step", name: "building", status: "running" });
   try {
-    const out = await runBuild(comp, ver, input.contact);
+    const out = await runBuild(comp, ver);
     build = { ok: true, stdout: out.trim() };
     onProgress({ type: "step", name: "building", status: "done", detail: out.trim() });
   } catch (e) {

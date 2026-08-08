@@ -300,9 +300,8 @@
     <!-- 配置逻辑引导条：钥匙 → 能力 → 保存验证 → 高级设置（可选） -->
     <div class="flow-steps">
       <div class="flow-step"><b><span class="fs-no">1</span>粘贴钥匙</b>选平台 → 粘贴 API Key</div>
-      <div class="flow-step"><b><span class="fs-no">2</span>选择能力</b>默认「纯文本」即可</div>
-      <div class="flow-step"><b><span class="fs-no">3</span>保存验证</b>点「💾 保存并自检」，状态条变绿即成功</div>
-      <div class="flow-step optional"><b><span class="fs-no alt">4</span>高级设置（可选）</b>多个模型 → 右上「⚙ 高级设置」</div>
+      <div class="flow-step"><b><span class="fs-no">2</span>保存验证</b>点「💾 保存并自检」，状态条变绿即成功</div>
+      <div class="flow-step optional"><b><span class="fs-no alt">3</span>高级设置（可选）</b>多个模型 → 右上「⚙ 高级设置」</div>
     </div>
 
     <!-- 第 1 组：钥匙（平台 + API Key） -->
@@ -311,7 +310,7 @@
       <div class="field">
         <label>① 选择平台</label>
         <select id="selPreset">
-          <option value="deepseek" selected>DeepSeek（默认）</option>
+          <option value="deepseek" selected>DeepSeek</option>
           <option value="zhipu">智谱 AI</option>
           <option value="siliconflow">硅基流动</option>
           <option value="openai">OpenAI</option>
@@ -329,18 +328,6 @@
       <div class="field">
         <label>② API Key</label>
         <input type="password" id="kpKey" placeholder="sk-... 或 xxxx.yyyy（完整密钥）">
-      </div>
-    </div>
-
-    <!-- 第 2 组：能力（本版只需文本能力） -->
-    <div class="field-group">
-      <div class="fg-title"><span class="fg-badge cap">🧠 选择能力类型</span></div>
-      <div class="field">
-        <label>③ 模型能力</label>
-        <select id="kpCap">
-          <option value="text">文本能力模型：只生成文字，满足本版全部需求（默认）</option>
-          <option value="textvision">识图能力模型（可选）：在文字基础上多了看图 / 读图，可作图片识别兜底</option>
-        </select>
       </div>
     </div>
 
@@ -381,7 +368,6 @@
       <div class="field">
         <label class="field-label"><span class="req">必选</span>岗位名称<span class="opt">建议含公司名</span></label>
         <input type="text" id="inpCompany" placeholder="如：腾讯-Agent开发实习生">
-        <div class="hint-line">效果：决定生成文件名与材料抬头（【岗位名称】面试准备.html）。请按 <b>公司-岗位</b> 格式填写，如 <b>腾讯-Agent开发实习生</b>。⚠ 非法字符（\ / : * ? " &lt; &gt; |）会被<b>自动移除</b>，超过 80 字自动截断。</div>
       </div>
       <div class="field">
         <label class="field-label">行业方向<span class="opt">(可选)</span></label>
@@ -393,7 +379,7 @@
       <div class="field full">
         <label class="field-label"><span class="req">必选</span>简历上传<span class="opt">本次生成使用，仅此一次</span></label>
         <div class="hint-line need" id="resumeNeedTip" style="margin-top:8px">简历未上传</div>
-        <div class="drop" id="dropResume">点击或拖拽简历文件到此处 · <b>支持 pdf / word(docx) / txt / markdown(md)</b>（请传文字版）</div>
+        <div class="drop" id="dropResume">点击或拖拽简历文件到此处 · <b>支持 pdf / word(docx) / txt / markdown(md)</b></div>
         <input type="file" id="inpResume" accept=".pdf,.docx,.txt,.md,.text" style="display:none">
         <div class="file-meta" id="fileMeta" style="display:none">
           <span id="fileInfo"></span>
@@ -401,38 +387,32 @@
           <span id="fileParseState" class="hint-line"></span>
         </div>
         <div class="resume-preview" id="resumePreview"></div>
-        <div class="hint-line upload-tip">支持格式：<b>PDF（文字版）</b> / <b>Word（docx）</b> / <b>txt</b> / <b>markdown</b>。⚠ 请上传<b>文字版</b>简历——<b>扫描件 / 拍照 / 图片型 PDF 无法读取</b>，请先用 Word 打开后「另存为」docx（或转成 txt）再上传。效果：生成的材料将基于这份简历（作为项目与数字的主要依据）；简历仅用于本次生成，不会保存到本机。</div>
+        <div class="hint-line upload-tip">支持格式：<b>PDF（文字版）</b> / <b>Word（docx）</b> / <b>txt</b> / <b>markdown</b>；简历仅用于本次生成，不会保存到本机。</div>
       </div>
       <div class="field full">
-        <label class="field-label">岗位 JD 链接<span class="opt">(可选，与文本二选一)</span></label>
+        <label class="field-label">岗位 JD 链接<span class="opt">(可选)</span></label>
         <div class="row">
           <input type="text" id="inpJdUrl" class="grow" placeholder="https://.../job_detail/xxx.html（http:// 或 https:// 开头）">
           <button class="btn ghost sm" id="btnFetchJd" title="点击后，程序会自动打开上方链接并把它页面里的招聘文本提取出来，填入下方「岗位 JD 文本」框">读取到下方</button>
         </div>
-        <div class="hint-line" style="margin-top:6px">💡 提示：<b>「读取到下方」</b>= 自动抓取上方链接页面里的招聘文字，填入下方 JD 文本框。<b>直接复制粘贴</b>招聘页的 JD 文字更准确、更快；链接读取仅为辅助方式（部分网站限制程序读取，失败时可改粘贴）。</div>
       </div>
       <div class="field full">
         <label class="field-label"><span class="req">必选</span>岗位 JD 文本<span class="opt">JD 越完整，生成材料匹配度越高（上限 20,000 字，超长部分自动截断）</span></label>
         <textarea id="inpJd" class="tall" placeholder="【岗位】xxx&#10;【职责】1. ... 2. ...&#10;【要求】..."></textarea>
       </div>
       <details class="more-fields full">
-      <summary>＋ 添加更多（可选）：参考网址 / 参考信息 / 联系方式</summary>
+      <summary>＋ 添加更多（可选）：参考网址 / 参考信息</summary>
       <div class="field full">
-        <label class="field-label">补充参考网址<span class="opt">(可选，最多 15 条)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：可填公司官网、面经帖、技术文章、招聘平台 JD 等，作为生成参考；每行一个网址，需以 http(s):// 开头</span></label>
+        <label class="field-label">补充参考网址<span class="opt">(可选，最多 15 条)</span></label>
         <div id="urlRows"></div>
         <button class="btn ghost sm" id="btnAddUrlRow" style="margin-top:8px">＋ 添加一行网址</button>
       </div>
       <div class="field full">
-        <label class="field-label">补充参考信息<span class="opt">(可选)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：面经、公司背景、技术文章、发展方向等，多段用空行隔开；作为生成参考（仅参考，不会写进你的经历）</span></label>
+        <label class="field-label">补充参考信息<span class="opt">(可选)</span></label>
         <textarea id="inpRefInfo" class="tall" placeholder="可直接粘贴面试经验分享、公司技术路线文章、行业动态等文字&#10;例如：&#10;（面经）一面问了 RAG 检索优化，重点考察……&#10;（公司背景）腾讯在大模型 Agent 方向持续投入，发布智能体开发平台与工作流工具……&#10;（发展方向）实习团队在做 AI Agent 效率工具……"></textarea>
         <div class="row" style="margin-top:6px">
-          <span class="hint-line" style="color:var(--muted)">💡 想参考哪些方向就贴哪些文字，越具体生成材料越贴近实际</span>
           <span id="refInfoCount" class="hint-line" style="margin-left:auto;color:var(--muted)">0 / 20,000 字</span>
         </div>
-      </div>
-      <div class="field full">
-        <label class="field-label">联系方式<span class="opt">(可选)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：开发者联系方式与面试祝福将统一放置在每份生成结果文件的开头与结尾（如「📮 开发者名 · 联系邮箱 · 祝面试顺利」）；不填则不显示</span></label>
-        <input type="text" id="inpContact" placeholder="如：开发者署名 · 联系邮箱（将出现在每份结果文件的开头与结尾）">
       </div>
       </details>
     </div>
@@ -504,10 +484,10 @@
     <div id="provList"></div>
     <h4>新增 / 编辑配置</h4>
     <div class="field"><label>配置名称（自定义标签，仅用于区分不同平台/账号，不影响 API 调用）</label><input type="text" id="pName" placeholder="如 siliconflow 或 my-key-1"></div>
-    <div class="field"><label>Base URL（API 接口地址，必须以 /chat/completions 结尾；获取方法见主页面③的说明）</label><input type="text" id="pUrl" placeholder="https://api.xxx.com/v1/chat/completions"></div>
+    <div class="field"><label>Base URL（API 接口地址，必须以 /chat/completions 结尾；获取方法见主页面⑥的说明）</label><input type="text" id="pUrl" placeholder="https://api.xxx.com/v1/chat/completions"></div>
     <div class="field"><label>模型名（平台提供的真实模型 ID，从平台「模型列表 / 接入文档」复制；与配置名称是两个不同的东西）</label><input type="text" id="pModel" placeholder="如 Qwen/Qwen2.5-72B-Instruct"></div>
     <div class="field"><label>API Key（编辑时留空表示不修改）</label><input type="password" id="pKey" placeholder="sk-..."></div>
-    <div class="field"><label>能力（可填 text / vision，逗号分隔）</label><input type="text" id="pCap" placeholder="text,vision" value="text"><div class="hint-line">必须包含 <b>text</b> 才能用于生成面试材料；vision 为可选（本版识图默认由本地离线识别完成，视觉模型仅作备用）。</div></div>
+    <div class="field"><label>能力（可填 text / vision，逗号分隔）</label><input type="text" id="pCap" placeholder="text,vision" value="text"><div class="hint-line">必须包含 <b>text</b> 才能用于生成面试材料；vision 为可选（本版识图由本地离线识别完成，视觉模型仅作备用）。</div></div>
     <div class="row">
       <button class="btn sm" id="btnSaveProvider">保存</button>
       <button class="btn ghost sm" id="btnTestProvider">配置自检</button>
@@ -515,9 +495,9 @@
     </div>
     <div class="hint-line" style="margin-top:8px">配置保存后自动生效；列表顺序即调用优先级（排在上面的优先使用）。生成面试材料至少需要 1 个已启用、含文本能力且 Key 有效的配置。</div>
 
-    <h4>本地图片文字识别（默认方案）</h4>
+    <h4>本地图片文字识别</h4>
     <div class="hint-line" style="background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:10px">
-      软件自带的离线图片文字识别：无需联网、无需额外安装，可直接提取图片 / 扫描件中的文字。本版识图默认由本地识别完成：图片文字提取顺序为本地识别 → 本机工具 → 视觉模型（若配置）。
+      软件自带的离线图片文字识别：无需联网、无需额外安装，可直接提取图片 / 扫描件中的文字。本版识图由本地识别完成：图片文字提取顺序为本地识别 → 本机工具 → 视觉模型（若配置）。
     </div>
     <div id="ocrJsStatus"></div>
 
@@ -576,13 +556,8 @@
       },
       selPreset: {
         t: "① 选择平台",
-        h: "<p>默认 <b>DeepSeek</b>（低成本、新用户送额度），点击下拉可切换到其他平台（智谱 / 硅基流动 / OpenAI 等）。</p><p>概念区分：<b>平台</b>= 你从哪家服务商申请 API Key；<b>模型</b>= 该平台上具体用的模型（选平台后自动填入）；<b>配置名称</b>= 你给这套配置起的标签。</p><p>选择后程序会<b>自动填入</b>该平台的配置名称、模型名与接口地址，无需手动填写。</p>",
-        f: "选平台后粘贴 API Key 即可保存自检；大多数用户保持默认 DeepSeek 即可。"
-      },
-      kpCap: {
-        t: "③ 模型能力（文本即可）",
-        h: "<p><b>文本能力模型</b>：只需配置<b>一个文本模型</b>即可完整使用本版（如 deepseek-v4-flash），生成的面试材料质量与视觉版相当。</p><p><b>识图能力模型（可选）</b>：仅作图片识别的备用路径，不配置完全不影响使用——扫描件 / 图片文字由本地离线识别自动处理。</p>",
-        f: "本版识图默认走本地离线识别（开箱即用、不产生费用）。"
+        h: "<p>打开即是 <b>DeepSeek</b>（低成本、新用户送额度），点击下拉可切换到其他平台（智谱 / 硅基流动 / OpenAI 等）。</p><p>概念区分：<b>平台</b>= 你从哪家服务商申请 API Key；<b>模型</b>= 该平台上具体用的模型（选平台后自动填入）；<b>配置名称</b>= 你给这套配置起的标签。</p><p>选择后程序会<b>自动填入</b>该平台的配置名称、模型名与接口地址，无需手动填写。</p>",
+        f: "选平台后粘贴 API Key 即可保存自检。"
       },
       kpName: {
         t: "④ 配置名称",
@@ -636,10 +611,10 @@
         h: "<p>可选。面经、公司背景、技术文章、发展方向等文字，多段用空行隔开。</p><p>作用：让 AI 参考这些方向生成更贴合实际的材料（<b>仅参考，不会写进你的经历</b>）。</p>",
         f: "想参考哪些方向就贴哪些文字，越具体生成材料越贴近实际。"
       },
-      inpContact: {
-        t: "联系方式",
-        h: "<p>可选。开发者署名与联系邮箱等，会统一放置在<b>每份生成结果文件的开头与结尾</b>（如「📮 开发者名 · 联系邮箱 · 祝面试顺利」）。不填则不显示。</p>",
-        f: "适合放自己的署名 / 邮箱，方便材料被他人看到时联系你。"
+      urlInp: {
+        t: "补充参考网址",
+        h: "<p>可选。可填公司官网、面经帖、技术文章、招聘平台 JD 等，作为生成参考。</p><p>每行一个网址，需以 <code>http(s)://</code> 开头；最多 15 条。</p>",
+        f: "URL 格式错误时输入框会标红提示。"
       },
       btnStart: {
         t: "🚀 一键生成面试材料",
@@ -648,7 +623,7 @@
       },
       btnSettings: {
         t: "⚙ 高级设置",
-        h: "<p>统一管理<b>全部模型配置与 API Key</b>：多平台备用切换、启停 / 删除 / 单独自检。</p><p>另有可选增强：本地图片文字识别（默认方案）、本地工具、联网搜索（Tavily）。</p>",
+        h: "<p>统一管理<b>全部模型配置与 API Key</b>：多平台备用切换、启停 / 删除 / 单独自检。</p><p>另有可选增强：本地图片文字识别、本地工具、联网搜索（Tavily）。</p>",
         f: "第 1 步每次保存一个配置；高级设置可添加多个并按顺序调用。"
       }
     };

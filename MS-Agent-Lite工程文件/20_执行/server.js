@@ -253,9 +253,6 @@ async function handleApi(req, res, url) {
     if (body.resumeText && body.resumeText.length > 20000) return sendJson(res, 400, { error: "resumeText 过长（上限 20000 字）" });
     if (!body.resumeFile) return sendJson(res, 400, { error: "请上传简历" });
     if (Array.isArray(body.urls) && body.urls.length > 15) return sendJson(res, 400, { error: "参考网址最多 15 条" }); // P2-3 条数上限（与流水线 MAX_URL_COUNT=15 一致）
-    if (body.contact !== undefined && (typeof body.contact !== "string" || body.contact.length > 200)) {
-      return sendJson(res, 400, { error: "联系方式需为文本，且不超过 200 字" });
-    }
 
     const taskId = crypto.randomBytes(6).toString("hex");
     // 同岗位并发互斥（P1-4）：避免两个任务互踩产物目录
@@ -323,7 +320,7 @@ async function handleApi(req, res, url) {
         }
         // 4) 生成管线
         // 用独立对象传参并在结束后回写 searchInfo 到任务 input：retry 时直接复用联网搜索资料
-        const genInput = { company, resumeVer: body.resumeVer || "", resumeText, jdText, urls, refInfo: body.refInfo || "", contact: body.contact || "" };
+        const genInput = { company, resumeVer: body.resumeVer || "", resumeText, jdText, urls, refInfo: body.refInfo || "" };
         await runGenerate(genInput, {
           onProgress: evt => pushEvent(taskId, evt),
           signal: controller.signal
@@ -397,7 +394,7 @@ async function handleApi(req, res, url) {
         t.controller = new AbortController();
         retrySignal = t.controller.signal;
       }
-      const r = await retryFile({ company: input.company, resumeVer: input.resumeVer || "", resumeText: input.resumeText || "", jdText: input.jdText || "", urls: input.urls || [], refInfo: input.refInfo || "", contact: input.contact || "", searchInfo: input.searchInfo || "" }, body.name, {
+      const r = await retryFile({ company: input.company, resumeVer: input.resumeVer || "", resumeText: input.resumeText || "", jdText: input.jdText || "", urls: input.urls || [], refInfo: input.refInfo || "", searchInfo: input.searchInfo || "" }, body.name, {
         onProgress: evt => pushEvent(retryMatch[1], evt),
         signal: retrySignal
       });
@@ -407,7 +404,7 @@ async function handleApi(req, res, url) {
       const outDir = path.join(MATERIALS, input.company);
       pushEvent(retryMatch[1], { type: "log", text: "重试成功，正在重新构建 HTML…" });
       let build = null, verify = null;
-      try { const out = await runBuild(input.company, ver, input.contact || ""); build = { ok: true, stdout: out.trim() }; }
+      try { const out = await runBuild(input.company, ver); build = { ok: true, stdout: out.trim() }; }
       catch (e) { build = { ok: false, stdout: ((e && (e.stdout || e.message)) || String(e)).trim() }; }
       pushEvent(retryMatch[1], { type: "build", ok: build.ok, detail: build.stdout });
       try { const out = await runVerify(input.company); verify = { ok: true, output: out.trim() }; }

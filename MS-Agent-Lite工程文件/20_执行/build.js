@@ -9,7 +9,7 @@ const comp = process.argv[2] || '示例-公司';
 const resumeVer = (process.argv[3] || '').toUpperCase(); // 第三参数：简历版本（旧 A/B 简写，或 10_知识库/简历基准 下的文件名，开始前用户指定）
 const RESUME_INFO = { 'A': '简历 A 版 · 应用/Agent/RAG', 'B': '简历 B 版 · 推理/部署/量化' };
 const resumeTag = RESUME_INFO[resumeVer] || (resumeVer ? '简历版本：' + resumeVer : ''); // 未指定则不显示版本标签
-const contact = (process.argv[4] || '').trim(); // 第四参数：联系方式（选填，姓名/电话/邮箱），注入结果文件页眉与页脚
+const contact = '联系作者 llxstupg@163.com'; // 固定水印（v0.4.14 起不再由用户填写）：统一注入结果文件页眉与页脚
 // 联系方式 HTML 转义（防注入模板）
 const escHtml = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const contactStr = contact ? escHtml(contact) : '';

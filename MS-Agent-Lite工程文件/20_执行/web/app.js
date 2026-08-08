@@ -29,7 +29,6 @@
     btnRemoveFile: $("btnRemoveFile"), fileParseState: $("fileParseState"), resumePreview: $("resumePreview"), resumeNeedTip: $("resumeNeedTip"),
     inpJdUrl: $("inpJdUrl"), btnFetchJd: $("btnFetchJd"), inpJd: $("inpJd"),
     urlRows: $("urlRows"), btnAddUrlRow: $("btnAddUrlRow"), inpRefInfo: $("inpRefInfo"), refInfoCount: $("refInfoCount"),
-    inpContact: $("inpContact"),
     btnStart: $("btnStart"), btnFillSample: $("btnFillSample"), inputError: $("inputError"),
     cardProcess: $("cardProcess"), taskBadge: $("taskBadge"), fileList: $("fileList"),
     progFill: $("progFill"), progPct: $("progPct"),
@@ -46,7 +45,7 @@
     btnSaveWebSearch: $("btnSaveWebSearch"), webSearchMsg: $("webSearchMsg"),
     toast: $("toast"), provStatus: $("provStatus"),
     cardApiKey: $("cardApiKey"), keyStatus: $("keyStatus"), selPreset: $("selPreset"), presetHint: $("presetHint"),
-    kpName: $("kpName"), kpUrl: $("kpUrl"), kpModel: $("kpModel"), kpCap: $("kpCap"), kpKey: $("kpKey"),
+    kpName: $("kpName"), kpUrl: $("kpUrl"), kpModel: $("kpModel"), kpKey: $("kpKey"),
     btnKeySave: $("btnKeySave"), keyMsg: $("keyMsg")
   };
 
@@ -168,7 +167,7 @@
       baseUrl: els.kpUrl.value.trim(),
       model: els.kpModel.value.trim(),
       apiKey: els.kpKey.value.trim(),
-      cap: CAP_MAP[els.kpCap.value] || ["text", "vision"]
+      cap: ["text"]
     };
     // 字段级校验：逐个指出缺什么、去哪填（不用笼统的"必填"）
     const missing = [];
@@ -212,7 +211,7 @@
   });
 
   // 提示重置：用户一改动任何配置字段，立即清掉上次的结果提示（成功/失败都不残留）
-  ["kpName", "kpUrl", "kpModel", "kpCap", "kpKey"].forEach(id => {
+  ["kpName", "kpUrl", "kpModel", "kpKey"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => setKeyMsg("", ""));
   });
@@ -384,6 +383,7 @@
     const inp = document.createElement("input");
     inp.type = "text";
     inp.className = "grow url-inp";
+    inp.id = "urlInp";
     inp.placeholder = "https://...（http(s):// 开头，如牛客面经帖 / 公司官网 / 技术博客）";
     // 失焦即时校验：非法 URL / 本机内网地址红框提示，避免最后提交才报错
     inp.addEventListener("blur", () => {
@@ -670,9 +670,6 @@
     // 补充参考信息：超过 20,000 字时后端会截断，此处仅在前端给出明确警告（不阻断，用户可继续）
     const refInfo = els.inpRefInfo.value.trim();
     if (refInfo) body.refInfo = refInfo;
-    // 联系方式（选填）：姓名/电话/邮箱，统一显示在生成材料的开头与结尾
-    const contact = els.inpContact.value.trim();
-    if (contact) body.contact = contact;
 
     els.btnStart.disabled = true;
     els.cardProcess.style.display = "block";
