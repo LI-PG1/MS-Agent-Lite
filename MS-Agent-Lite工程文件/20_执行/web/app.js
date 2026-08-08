@@ -30,7 +30,7 @@
     inpJdUrl: $("inpJdUrl"), btnFetchJd: $("btnFetchJd"), inpJd: $("inpJd"),
     urlRows: $("urlRows"), btnAddUrlRow: $("btnAddUrlRow"), inpRefInfo: $("inpRefInfo"), refInfoCount: $("refInfoCount"),
     inpContact: $("inpContact"),
-    btnStart: $("btnStart"), inputError: $("inputError"),
+    btnStart: $("btnStart"), btnFillSample: $("btnFillSample"), inputError: $("inputError"),
     cardProcess: $("cardProcess"), taskBadge: $("taskBadge"), fileList: $("fileList"),
     progFill: $("progFill"), progPct: $("progPct"),
     logBox: $("logBox"), btnCancel: $("btnCancel"),
@@ -297,6 +297,21 @@
       els.btnFetchJd.disabled = false;
       els.btnFetchJd.textContent = "读取到下方";
     }
+  });
+
+  // 「填入示例」：一键填充示例岗位 + JD + 参考信息，方便先跑通流程
+  els.btnFillSample.addEventListener("click", () => {
+    els.inpCompany.value = "示例科技-算法工程师实习生";
+    els.inpJd.value = "【岗位】算法工程师实习生\n" +
+      "【职责】1. 参与推荐系统召回 / 排序模型优化 2. 构建离线评估实验与特征 pipeline 3. 跟进线上指标波动并沉淀分析结论\n" +
+      "【要求】1. 熟悉 Python 与机器学习基础 2. 了解 PyTorch / 大模型加分 3. 每周出勤 4 天以上，持续 3 个月";
+    els.inpRefInfo.value = "（公司背景）公司深耕 AI 大模型方向，团队聚焦搜索推荐与 Agent 应用，技术栈以 Python 为主。\n" +
+      "（面经）一面重点考察机器学习基础与项目深挖，二面考察算法题与系统设计，反问环节建议准备公司产品相关问题。";
+    // 展开「添加更多」区，让用户看到参考信息已被填入
+    const more = document.querySelector(".more-fields");
+    if (more) more.open = true;
+    toast("已填入示例岗位与 JD（可修改后点「🚀 一键生成」）");
+    els.btnStart.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
   // JD 文本区粘贴图片拦截：提示用户贴文字而非截图（文本框无法承载图片，避免"粘贴了但没反应"的困惑）
@@ -578,8 +593,18 @@
   function finishTask(evt) {
     if (state.es) { state.es.close(); state.es = null; }
     setBadge(els.taskBadge, "ok", "完成");
+    if (window.stepUI) { stepUI(2, "done"); stepUI(3, "done"); }
     showResult(!!evt.ok, evt);
     els.btnStart.disabled = false; // 任务完成后恢复生成按钮（此前永久禁用，需刷新页面才能重新生成）
+    // 完成后引导：自动滚动到结果卡并提示下一步
+    try {
+      els.cardResult.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) { /* 忽略滚动失败 */ }
+    if (evt.ok) {
+      toast("✅ 材料已生成！可滚动到下方预览 / 打印 / 分享；如单份失败可点「重试」", 6000);
+    } else {
+      toast("生成部分完成：可看结果区说明，失败项可单独重试", 6000);
+    }
   }
   async function retryFile(name) {
     if (!state.taskId) return;
@@ -660,6 +685,7 @@
     els.logBox.innerHTML = "";
     renderFileList();
     setBadge(els.taskBadge, "run", "提交中…");
+    if (window.stepUI) stepUI(2, "active");
 
     try {
       const d = await api("/api/material", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -699,6 +725,7 @@
       els.keyStatus.className = "key-status ok";
       els.keyStatus.innerHTML = "✓ API Key 已配置成功，共 " + verifiedUsable.length + " 个可用（模型：" +
         verifiedUsable.map(p => p.displayName || p.model).join("、") + "）。状态正常。下一步：填写下方第 2 步内容（岗位 / 简历 / JD），点「🚀 一键生成面试材料」。";
+      if (window.stepUI) stepUI(1, "done");
     } else if (usable.length) {
       els.keyStatus.className = "key-status warn";
       els.keyStatus.innerHTML = "🟡 已保存 " + usable.length + " 个配置，但<b>尚未验证真实可用</b>。请点「💾 保存并自检」完成验证（通过后状态条变绿）；若失败，请按提示核对 API Key / Base URL / 模型名。";

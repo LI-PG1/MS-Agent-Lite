@@ -27,7 +27,45 @@
   .topbar button:hover{background:rgba(255,255,255,.2)}
 
   /* 布局 */
-  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+  .wrap{flex:1;min-width:0;max-width:1500px;margin:0 auto;padding:20px 26px 80px;width:100%}
+
+  /* ---------- 横版三栏布局（左进度条 + 中内容 + 右提示栏） ---------- */
+  .layout{display:flex;align-items:stretch;min-height:calc(100vh - 52px)}
+  .rail{position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;background:#fff;flex:0 0 238px;box-sizing:border-box;padding:18px 16px}
+  .rail-left{border-right:1px solid var(--line)}
+  .rail-right{border-left:1px solid var(--line);flex-basis:292px;background:#fbfcfe}
+  .rail-title{font-size:12px;font-weight:700;color:var(--ink-soft);letter-spacing:.5px;margin:2px 0 12px;display:flex;align-items:center;gap:6px}
+  .rail-title::before{content:"";width:3px;height:12px;border-radius:2px;background:var(--accent)}
+
+  /* 左栏：常驻进度条 */
+  .progress-steps{list-style:none;margin:0;padding:0}
+  .progress-steps li{display:flex;gap:10px;align-items:flex-start;padding:11px 9px;border-radius:10px;margin-bottom:4px;border:1px solid transparent;color:var(--ink-mute)}
+  .progress-steps li.active{background:var(--accent-soft);border-color:#bfdbfe;color:var(--ink)}
+  .progress-steps li.done{color:var(--ink-soft)}
+  .progress-steps .p-no{flex:0 0 22px;height:22px;border-radius:50%;background:#d1d5db;color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .progress-steps li.active .p-no{background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+  .progress-steps li.done .p-no{background:var(--ok)}
+  .progress-steps .p-txt{font-size:12.5px;line-height:1.55}
+  .progress-steps .p-txt b{display:block;font-weight:700;font-size:13px}
+  .progress-steps .p-txt em{font-style:normal;font-size:11.5px;opacity:.85}
+  .rail-note{margin-top:16px;padding:9px 11px;border-radius:8px;background:#f1f5f9;font-size:11px;color:var(--ink-mute);line-height:1.7}
+
+  /* 右栏：常驻提示栏 */
+  .help-box{border:1px solid var(--line);border-radius:10px;background:#fff;padding:13px 14px;box-shadow:var(--shadow)}
+  .help-title{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:9px;display:flex;gap:6px;align-items:center}
+  .help-body{font-size:12px;color:var(--ink-soft);line-height:1.85}
+  .help-body p{margin:0 0 8px}
+  .help-body ul{margin:0 0 8px;padding-left:18px}
+  .help-body li{margin-bottom:4px}
+  .help-body b{color:var(--ink)}
+  .help-body code{background:#eef1f5;padding:1px 5px;border-radius:4px;font-size:11px;color:#c0341d}
+  .help-foot{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:11px;color:var(--ink-mute);line-height:1.7}
+
+  /* 响应式：窄屏逐级收起侧栏，保证不重叠、不挤压 */
+  @media (max-width:1240px){.rail-left{flex-basis:200px}.rail-right{flex-basis:256px}}
+  @media (max-width:1024px){.rail-right{display:none}}
+  @media (max-width:820px){.rail-left{display:none}}
+  @media (max-width:720px){.wrap{padding:16px 14px 70px}}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
   .card h2{margin:0 0 14px;font-size:15px;display:flex;align-items:center;gap:8px}
@@ -201,6 +239,18 @@
 
   .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#111827;color:#fff;
     padding:9px 18px;border-radius:8px;font-size:13px;z-index:120;display:none;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+  /* ---------- 折叠区（高级配置 / 更多可选 / 日志详情） ---------- */
+  details.fg-collapse{margin-top:0}
+  details.more-fields{margin-top:2px}
+  details.fg-collapse>summary, details.more-fields>summary, details.logwrap>summary{list-style:none;cursor:pointer;user-select:none}
+  details.fg-collapse>summary::-webkit-details-marker, details.more-fields>summary::-webkit-details-marker, details.logwrap>summary::-webkit-details-marker{display:none}
+  details.more-fields>summary{font-size:12.5px;color:var(--accent);font-weight:600;padding:8px 0}
+  details.more-fields>summary::after{content:" ▾";font-size:10px}
+  details.more-fields[open]>summary::after{content:" ▴"}
+  details.logwrap{margin-top:12px}
+  details.logwrap>summary{font-size:12px;color:var(--ink-soft);padding:4px 0}
+  details.logwrap>summary::after{content:"（点开查看）";font-size:11px;color:var(--ink-mute);margin-left:4px}
+
   @media (max-width:720px){ .grid{grid-template-columns:1fr} }
 </style>
 </head>
@@ -214,6 +264,27 @@
     <button id="btnSettings">⚙ 高级设置</button>
   </div>
 </div>
+
+<div class="layout">
+<!-- 左栏：常驻进度条（不随滚动移动） -->
+<aside class="rail rail-left" aria-label="使用进度">
+  <div class="rail-title">使用进度</div>
+  <ol class="progress-steps">
+    <li class="pstep active" data-step="1">
+      <span class="p-no">1</span>
+      <div class="p-txt"><b>配置 API Key</b><em>选平台 · 粘贴钥匙 · 保存自检</em></div>
+    </li>
+    <li class="pstep" data-step="2">
+      <span class="p-no">2</span>
+      <div class="p-txt"><b>填写材料</b><em>岗位 / 简历 / JD（可加参考）</em></div>
+    </li>
+    <li class="pstep" data-step="3">
+      <span class="p-no">3</span>
+      <div class="p-txt"><b>生成结果</b><em>一键生成 · 预览 / 打印 / 分享</em></div>
+    </li>
+  </ol>
+  <div class="rail-note">💡 左侧显示使用进度，右侧显示当前操作的说明；中间内容区可上下滚动。</div>
+</aside>
 
 <div class="wrap">
 
@@ -229,7 +300,7 @@
 
     <!-- 配置逻辑引导条：钥匙 → 能力 → 保存验证 → 高级设置（可选） -->
     <div class="flow-steps">
-      <div class="flow-step"><b><span class="fs-no">1</span>粘贴钥匙</b>选平台 → 粘贴 API Key（下方第 1 组）</div>
+      <div class="flow-step"><b><span class="fs-no">1</span>粘贴钥匙</b>选平台 → 粘贴 API Key</div>
       <div class="flow-step"><b><span class="fs-no">2</span>选择能力</b>告诉 MS-Agent-Lite 你的模型能做什么（不懂选「纯文本」即可）</div>
       <div class="flow-step"><b><span class="fs-no">3</span>保存验证</b>点「💾 保存并自检」，状态条变绿即成功</div>
       <div class="flow-step optional"><b><span class="fs-no alt">4</span>高级设置（可选）</b>多个模型 → 右上「⚙ 高级设置」</div>
@@ -237,7 +308,7 @@
 
     <!-- 第 1 组：钥匙（平台 + API Key） -->
     <div class="field-group">
-      <div class="fg-title"><span class="fg-badge key">🔑 第 1 步 · 选平台 + 粘贴钥匙</span><span>告诉 MS-Agent-Lite「用哪家平台、用哪个钥匙」</span></div>
+      <div class="fg-title"><span class="fg-badge key">🔑 选平台 + 粘贴钥匙</span><span>告诉 MS-Agent-Lite「用哪家平台、用哪个钥匙」</span></div>
       <div class="field">
         <label>① 选择平台（选常用平台可自动填入下方身份信息，也可选「手动填写」自行输入）</label>
         <select id="selPreset">
@@ -266,7 +337,7 @@
 
     <!-- 第 2 组：能力（本版只需文本能力） -->
     <div class="field-group">
-      <div class="fg-title"><span class="fg-badge cap">🧠 第 2 步 · 选择能力类型</span><span>本版只需「文本能力」即可完整使用，识图由 MS-Agent-Lite 自动处理</span></div>
+      <div class="fg-title"><span class="fg-badge cap">🧠 选择能力类型</span><span>本版只需「文本能力」即可完整使用，识图由 MS-Agent-Lite 自动处理</span></div>
       <div class="field">
         <label>③ 模型能力（本版选择「文本能力模型」即可）</label>
         <select id="kpCap">
@@ -287,9 +358,9 @@
       </div>
     </div>
 
-    <!-- 第 3 组：身份信息（通常无需修改） -->
-    <div class="field-group">
-      <div class="fg-title"><span class="fg-badge id">📋 第 3 步 · 确认身份信息</span><span>选平台后已自动填好，通常无需修改；「手动填写」时需按服务商文档补全</span></div>
+    <!-- 身份信息（选平台后已自动填好，默认折叠；「手动填写」时展开补全） -->
+    <details class="field-group fg-collapse">
+      <summary class="fg-title"><span class="fg-badge id">📋 确认身份信息</span><span>选平台后已自动填好，通常无需修改；「手动填写」时需展开补全</span></summary>
       <div class="field">
         <label>④ 配置名称（自定义标签，仅用于界面中区分不同平台/账号）</label>
         <input type="text" id="kpName" placeholder="如 zhipu 或 my-key-1（建议用平台名或用途命名）">
@@ -299,7 +370,7 @@
         <input type="text" id="kpModel" placeholder="如 glm-4-flash（从平台「模型列表 / 接入文档」复制）">
       </div>
       <div class="field">
-        <label>⑥ Base URL（API 接口地址，必须以 /chat/completions 结尾）</label>
+        <label>⑥ 接口地址（Base URL）：服务商提供的 API 网址，必须以 /chat/completions 结尾</label>
         <input type="text" id="kpUrl" placeholder="https://api.xxx.com/v1/chat/completions">
         <details class="hint-line" style="margin-top:6px">
           <summary style="cursor:pointer;color:var(--accent)">❓ 什么是 Base URL？怎么获取？（点开查看说明）</summary>
@@ -323,7 +394,7 @@
           · <b>⑤ 模型名</b> = 平台给模型的<b>真实编号</b>（如手机号，必须一字不差地从平台复制，程序靠它找到正确的模型）。
         </div>
       </div>
-    </div>
+    </details>
 
     <div class="row" style="margin-top:6px">
       <button class="btn" id="btnKeySave">💾 保存并自检</button>
@@ -372,6 +443,8 @@
         <label class="field-label"><span class="req">必选</span>岗位 JD 文本<span class="opt">JD 越完整，生成材料匹配度越高（上限 20,000 字，超长部分自动截断）</span></label>
         <textarea id="inpJd" class="tall" placeholder="【岗位】xxx&#10;【职责】1. ... 2. ...&#10;【要求】..."></textarea>
       </div>
+      <details class="more-fields full">
+      <summary>＋ 添加更多（可选）：参考网址 / 参考信息 / 联系方式</summary>
       <div class="field full">
         <label class="field-label">补充参考网址<span class="opt">(可选，最多 15 条)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：可填公司官网、面经帖、技术文章、招聘平台 JD 等，作为生成参考；每行一个网址，需以 http(s):// 开头</span></label>
         <div id="urlRows"></div>
@@ -389,9 +462,11 @@
         <label class="field-label">联系方式<span class="opt">(可选)</span><span class="hint-line" style="display:inline;margin-left:6px">&nbsp;&nbsp;效果：开发者联系方式与面试祝福将统一放置在每份生成结果文件的开头与结尾（如「📮 开发者名 · 联系邮箱 · 祝面试顺利」）；不填则不显示</span></label>
         <input type="text" id="inpContact" placeholder="如：开发者署名 · 联系邮箱（将出现在每份结果文件的开头与结尾）">
       </div>
+      </details>
     </div>
     <div class="row" style="margin-top:14px">
       <button class="btn" id="btnStart">🚀 一键生成面试材料</button>
+      <button class="btn ghost" id="btnFillSample">填入示例（先试试效果）</button>
       <span id="inputError" style="color:var(--err);font-size:12.5px"></span>
     </div>
     <div class="cost-tip">💰 成本参考：单次完整生成约 <b>0.2 元</b>（约 15 万 tokens，DeepSeek-V4-flash 官方现价；工作日高峰时段约翻倍）——远低于人工准备面试资料的成本。</div>
@@ -407,7 +482,10 @@
       <span class="progress-pct" id="progPct">0%</span>
     </div>
     <div id="fileList" class="files"></div>
-    <div class="logbox" id="logBox"></div>
+    <details class="logwrap">
+      <summary>查看生成详情（日志）</summary>
+      <div class="logbox" id="logBox"></div>
+    </details>
     <div class="row" style="margin-top:12px">
       <button class="btn ghost sm" id="btnCancel">停止任务</button>
       <span class="hint-line">单文件失败可稍后在结果区重试</span>
@@ -428,6 +506,18 @@
   <footer style="text-align:center;color:var(--ink-mute);font-size:12px;padding:10px 0 4px;line-height:1.9">
     感谢使用 MS-Agent（纯文本版），希望能对你的面试有所帮助。如有问题或建议，欢迎随时联系作者：<a href="mailto:llxstupg@163.com" style="color:var(--accent)">llxstupg@163.com</a>
   </footer>
+
+</div>
+
+<!-- 右栏：常驻提示栏（不随滚动移动，交互时动态显示说明） -->
+<aside class="rail rail-right" aria-label="操作提示">
+  <div class="rail-title">操作提示</div>
+  <div class="help-box">
+    <div class="help-title" id="helpTitle">👋 欢迎使用 MS-Agent-Lite</div>
+    <div class="help-body" id="helpBody">点击 / 聚焦中间任意输入项，右侧会显示该操作的详细说明。</div>
+  </div>
+  <div class="help-foot" id="helpFoot">所有数据仅保存在你本机，不会上传到任何服务器。</div>
+</aside>
 
 </div>
 
@@ -491,6 +581,146 @@
     var s = document.createElement("script");
     s.src = location.protocol === "file:" ? "./app.js" : "/web/app.js";
     document.body.appendChild(s);
+  })();
+</script>
+
+<script>
+  // ---------- 横版布局交互：右栏常驻提示 + 左栏进度条联动 ----------
+  (function () {
+    "use strict";
+    var HELP = {
+      __default__: {
+        t: "👋 欢迎使用 MS-Agent-Lite",
+        h: "<p>点击 / 聚焦中间任意输入项，右侧会显示该操作的详细说明。</p><p>使用主线：<b>① 配置 API Key → ② 填写材料 → ③ 一键生成</b>。</p>",
+        f: "所有数据仅保存在你本机，不会上传到任何服务器。"
+      },
+      kpKey: {
+        t: "🔑 API Key 是什么？",
+        h: "<p><b>作用</b>：MS-Agent-Lite 调用大模型的“钥匙”。没有它，程序无法请求模型生成材料。</p>" +
+           "<p><b>获取方式</b>：去所选平台官网注册 → 实名认证 → 进入「控制台 / API 密钥」→ 创建 API Key → 复制。</p>" +
+           "<ul><li><b>格式</b>：一长串字符（如 <code>sk-...</code>），需完整粘贴、前后无空格；首次填写，之后可留空。</li>" +
+           "<li><b>安全</b>：Key 仅保存在你本机 <code>config.json</code>，不会上传任何服务器；请勿发到公开渠道。</li></ul>",
+        f: "本版只需配置一个文本模型即可完整使用；不知道去哪拿 Key？回看《使用指南.html》第 2 步。"
+      },
+      selPreset: {
+        t: "① 选择平台",
+        h: "<p>选择你已注册的平台（智谱 / 硅基流动 / DeepSeek / OpenAI 等），程序会<b>自动填入</b>该平台的接口地址与常用模型名。</p><p>不选则从空白开始，需按服务商文档手动填写。</p>",
+        f: "选「手动填写」= 自己粘贴服务商文档里的地址与模型名。"
+      },
+      kpCap: {
+        t: "③ 模型能力（文本即可）",
+        h: "<p><b>文本能力模型</b>：只需配置<b>一个文本模型</b>即可完整使用本版（如 deepseek-v4-flash），生成的面试材料质量与视觉版相当。</p><p><b>识图能力模型（可选）</b>：仅作图片识别的备用路径，不配置完全不影响使用——扫描件 / 图片文字由本地离线识别自动处理。</p>",
+        f: "本版识图默认走本地离线识别（开箱即用、不产生费用）。"
+      },
+      kpName: {
+        t: "④ 配置名称",
+        h: "<p>你给这把“钥匙”贴的<b>标签</b>，仅用于界面中区分不同平台 / 账号（如手机通讯录里的联系人昵称），不影响调用。</p>",
+        f: "建议用平台名或用途命名，如 zhipu / my-key-1。"
+      },
+      kpModel: {
+        t: "⑤ 模型名",
+        h: "<p>平台给模型的<b>真实编号</b>（如手机号），程序靠它找到正确的模型。<b>必须一字不差</b>地从平台「模型列表 / 接入文档」复制。</p><p>与配置名称是两回事：名称是标签，模型名是编号。</p>",
+        f: "填错会报“模型不存在 / 调用失败”，请核对平台文档。"
+      },
+      kpUrl: {
+        t: "⑥ Base URL（接口地址）",
+        h: "<p>模型平台对外提供 OpenAI 兼容接口的<b>完整网址</b>，必须以 <code>/chat/completions</code> 结尾。</p><p>获取：平台官网 → 控制台 → 接入文档 → 复制「接口地址 / Base URL」字段。</p><ul><li>智谱：<code>https://open.bigmodel.cn/api/paas/v4/chat/completions</code></li><li>DeepSeek：<code>https://api.deepseek.com/v1/chat/completions</code></li></ul>",
+        f: "选平台后通常已自动填好，无需修改。"
+      },
+      btnKeySave: {
+        t: "💾 保存并自检",
+        h: "<p>保存当前配置并<b>真实请求一次模型</b>验证可用性：通过后状态条变绿，第 1 步完成。</p><p>失败时按提示核对：Key 是否完整 / 模型名是否复制准确 / 地址是否以 <code>/chat/completions</code> 结尾。</p>",
+        f: "只有自检通过（状态条变绿）才能进入下一步生成。"
+      },
+      inpCompany: {
+        t: "岗位名称",
+        h: "<p>本次求职的目标岗位（<b>建议含公司名</b>），如 <code>腾讯-Agent开发实习生</code>。它决定生成文件的文件名与材料抬头。</p><p>非法字符（\\ / : * ? &lt; &gt; |）会被自动移除，超过 80 字自动截断。</p>",
+        f: "按「公司-岗位」格式填写，材料抬头更清晰。"
+      },
+      selZone: {
+        t: "行业方向",
+        h: "<p>可选。选择目标行业方向后，程序会参考对应行业画像生成更贴合的材料；不选也能正常生成。</p>",
+        f: "可选增强，空列表时直接跳过即可。"
+      },
+      dropResume: {
+        t: "📄 简历上传",
+        h: "<p>点击或拖拽简历文件到上传区。支持格式：<b>PDF / Word（docx）/ txt / markdown</b>。</p>" +
+           "<p>扫描件 / 拍照 / 图片型 PDF 也能用：本版会<b>自动尝试本地离线识别</b>提取图片中的文字（开箱即用、无需配置）。</p>" +
+           "<p>简历仅用于本次生成（作为项目与数字的主要依据），<b>不会保存到本机</b>。</p>",
+        f: "生成的材料基于这份简历，请确保是最新版本。"
+      },
+      inpJdUrl: {
+        t: "岗位 JD 链接",
+        h: "<p>可选。粘贴招聘页链接（以 http(s):// 开头），点「读取到下方」自动抓取页面里的招聘文字填入 JD 文本框。</p><p>部分网站限制程序读取，失败时直接复制粘贴 JD 文字更稳妥。</p>",
+        f: "直接粘贴招聘页 JD 文字更快、更准确；链接读取仅为辅助方式。"
+      },
+      inpJd: {
+        t: "岗位 JD 文本",
+        h: "<p>必填。粘贴目标岗位的完整招聘描述（职责 / 要求 / 待遇等）。<b>JD 越完整，生成材料匹配度越高</b>。</p><p>上限 20,000 字，超长部分自动截断。</p>",
+        f: "可同时提供链接与文本；两者都有时以文本优先。"
+      },
+      inpRefInfo: {
+        t: "补充参考信息",
+        h: "<p>可选。面经、公司背景、技术文章、发展方向等文字，多段用空行隔开。</p><p>作用：让 AI 参考这些方向生成更贴合实际的材料（<b>仅参考，不会写进你的经历</b>）。</p>",
+        f: "想参考哪些方向就贴哪些文字，越具体生成材料越贴近实际。"
+      },
+      inpContact: {
+        t: "联系方式",
+        h: "<p>可选。开发者署名与联系邮箱等，会统一放置在<b>每份生成结果文件的开头与结尾</b>（如「📮 开发者名 · 联系邮箱 · 祝面试顺利」）。不填则不显示。</p>",
+        f: "适合放自己的署名 / 邮箱，方便材料被他人看到时联系你。"
+      },
+      btnStart: {
+        t: "🚀 一键生成面试材料",
+        h: "<p>点按后程序按 8 个部分依次生成：自我介绍 / 项目深挖 / 技术场景题 / 反问环节 / 面试题库 / 数字口径速查等，并附带内容审核。</p><p>过程中：进度条实时显示完成度；单文件失败可稍后单独重试；多模型失败自动切换备用。</p>",
+        f: "一次完整生成约 0.2 元（约 15 万 tokens），成本透明。"
+      },
+      btnSettings: {
+        t: "⚙ 高级设置",
+        h: "<p>统一管理<b>全部模型配置与 API Key</b>：多平台备用切换、启停 / 删除 / 单独自检。</p><p>另有可选增强：本地图片文字识别（默认方案）、本地工具、联网搜索（Tavily）。</p>",
+        f: "第 1 步每次保存一个配置；高级设置可添加多个并按顺序调用。"
+      }
+    };
+    var titleEl = document.getElementById("helpTitle");
+    var bodyEl = document.getElementById("helpBody");
+    var footEl = document.getElementById("helpFoot");
+    function show(id) {
+      var h = HELP[id] || HELP.__default__;
+      titleEl.innerHTML = h.t;
+      bodyEl.innerHTML = h.h;
+      footEl.innerHTML = h.f;
+    }
+    document.addEventListener("focusin", function (e) {
+      var id = e.target && e.target.id;
+      if (id && HELP[id]) show(id);
+    });
+    Object.keys(HELP).forEach(function (id) {
+      if (id === "__default__") return;
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("click", function () { show(id); });
+    });
+    show("__default__");
+
+    // 左栏进度条联动（app.js 调用 window.stepUI(n, "active"|"done")）
+    window.stepUI = function (n, st) {
+      var li = document.querySelector('.progress-steps li[data-step="' + n + '"]');
+      if (!li) return;
+      li.classList.remove("active");
+      if (st === "done") li.classList.add("done");
+      else if (st === "active") li.classList.add("active");
+    };
+
+    // 键盘可达（无障碍）：label 与相邻控件自动建立 for/id 关联，便于屏幕阅读器与点击聚焦
+    document.querySelectorAll(".field label, .grid label").forEach(function (lb) {
+      if (lb.getAttribute("for")) return;
+      var ctl = lb.nextElementSibling;
+      while (ctl && ctl.nodeType === 1 && ctl.tagName !== "INPUT" && ctl.tagName !== "SELECT" && ctl.tagName !== "TEXTAREA") {
+        ctl = ctl.nextElementSibling;
+      }
+      if (ctl && ctl.id && (ctl.tagName === "INPUT" || ctl.tagName === "SELECT" || ctl.tagName === "TEXTAREA")) {
+        lb.setAttribute("for", ctl.id);
+      }
+    });
   })();
 </script>
 </body>
