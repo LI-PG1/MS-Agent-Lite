@@ -10,6 +10,13 @@
     --line:#e5e7eb; --accent:#2563eb; --accent-2:#06b6d4; --accent-soft:#eff6ff;
     --ok:#059669; --err:#dc2626; --warn:#d97706; --muted:#94a3b8; --topbar:#111827; --topbar-fg:#f9fafb;
     --radius:12px; --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+    /* v0.4.17 设计令牌体系（方向A 沉稳专业蓝）：主色蓝阶 / 点缀青 / 语义色三件套（前景/边框/底） */
+    --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-200:#bfdbfe;
+    --blue-600:#2563eb; --blue-700:#1d4ed8; --blue-900:#1e3a8a;
+    --cyan-500:#06b6d4;
+    --ok-bg:#f0fdf4; --ok-line:#bbf7d0; --ok-ink:#166534;
+    --warn-bg:#fffbeb; --warn-line:#fde68a; --warn-ink:#92400e;
+    --err-bg:#fef2f2; --err-line:#fecaca; --err-ink:#991b1b;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7}
@@ -148,11 +155,12 @@
   .badge.fail{background:#fee2e2;color:var(--err)}
   .badge.warn{background:#fef3c7;color:var(--warn)}
 
-  /* API Key 一键区状态条 */
+  /* API Key 一键区状态条（v0.4.17：语义色三件套令牌化；新增 info 蓝色引导态，与警示黄区分） */
   .key-status{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;border:1px solid var(--line);background:#f8fafc}
-  .key-status.ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
-  .key-status.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
-  .key-status.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+  .key-status.ok{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok-ink)}
+  .key-status.warn{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn-ink)}
+  .key-status.err{background:var(--err-bg);border-color:var(--err-line);color:var(--err-ink)}
+  .key-status.info{background:var(--accent-soft);border-color:var(--blue-200);color:var(--blue-700)}
   .err-inp{border-color:var(--err)!important;background:#fef2f2}
   #cardApiKey{border-color:var(--line);transition:border-color .3s}
   #cardApiKey.flash{border-color:var(--err);border-width:2px}
@@ -287,11 +295,6 @@
 </aside>
 
 <div class="wrap">
-
-  <!-- 页首提示：感谢 + 反馈渠道 -->
-  <div style="background:linear-gradient(135deg,#eff6ff,#fff);border:1px solid #bfdbfe;border-radius:var(--radius);padding:12px 18px;margin-bottom:16px;font-size:12.5px;color:#1e3a8a;line-height:1.8">
-    感谢使用 <b>MS-Agent（纯文本版）</b>，希望能对你的面试有所帮助。只需配置<b>一个文本模型</b>即可完整使用本版，生成的面试材料质量与视觉版相当，无需视觉模型。使用中如有问题或建议，欢迎随时联系作者：<a href="mailto:llxstupg@163.com" style="color:var(--accent);font-weight:600">llxstupg@163.com</a>
-  </div>
 
   <!-- ① API Key（一站式第一步：三步引导 + 多模型管理入口） -->
   <section class="card" id="cardApiKey">

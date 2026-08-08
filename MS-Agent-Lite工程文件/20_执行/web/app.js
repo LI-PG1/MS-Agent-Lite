@@ -340,6 +340,7 @@
       }
     } catch (e) {
       setKeyMsg("err", "保存失败：" + humanTestError(e.message));
+      renderKeyStatus(); // BUG-002 修复：保存/自检失败也要刷新状态条（provider 已保存则显示"待验证"黄态，避免停留在旧状态）
     } finally {
       els.btnKeySave.disabled = false;
     }
@@ -834,19 +835,29 @@
 
   // ---------- Provider 设置 ----------
   // 验证状态持久化：只有「保存并自检」真实请求通过后才显示绿色；否则显示"待验证"（避免配置残留造成误报）
+  // BUG-001 修复（v0.4.18）：verified 记录绑定 Key 指纹（apiKeyMasked 后 4 位）——
+  //   换 Key 后指纹不匹配自动失效，杜绝「旧验证标记 + 新假 Key」仍显示绿色"已就绪"的假阳性
   function getVerified() {
     try { return JSON.parse(localStorage.getItem("msa_verified") || "{}"); } catch (e) { return {}; }
   }
   function markVerified(name) {
-    try { const v = getVerified(); v[name] = Date.now(); localStorage.setItem("msa_verified", JSON.stringify(v)); } catch (e) {}
+    try {
+      const p = (state.providers || []).find(x => x.name === name);
+      const k = p && p.apiKeyMasked ? String(p.apiKeyMasked).slice(-4) : "";
+      const v = getVerified(); v[name] = { t: Date.now(), k }; localStorage.setItem("msa_verified", JSON.stringify(v));
+    } catch (e) {}
   }
-  // 主页面第 1 步的状态条：四态（绿=已自检通过 / 黄=待验证 / 黄=缺文本能力 / 黄=未配置）
+  // 主页面第 1 步的状态条：四态（绿✓=已自检通过 / 黄⚠=待验证 / 黄⚙=缺文本能力 / 蓝ℹ=未配置引导）——颜色+图标双编码（v0.4.17）
   function renderKeyStatus() {
     let providers = [];
     try { providers = state.providers || []; } catch (e) {}
     const verified = getVerified();
     const usable = providers.filter(p => p.enabled && p.hasKey && (p.cap || []).includes("text"));
-    const verifiedUsable = usable.filter(p => verified[p.name]);
+    // BUG-001：仅认可「新格式（对象 + 指纹）且指纹与当前 Key 后 4 位一致」的验证记录；旧数字格式/指纹不匹配一律视为未验证
+    const verifiedUsable = usable.filter(p => {
+      const v = verified[p.name];
+      return v && typeof v === "object" && v.k && v.k === (p.apiKeyMasked || "").slice(-4);
+    });
     if (verifiedUsable.length) {
       els.keyStatus.className = "key-status ok";
       els.keyStatus.innerHTML = "✓ API Key 已配置成功，共 " + verifiedUsable.length + " 个可用（模型：" +
@@ -855,13 +866,13 @@
       setRailNote("下一步：第 2 步 填写岗位 / 简历 / JD → 点「🚀 一键生成」");
     } else if (usable.length) {
       els.keyStatus.className = "key-status warn";
-      els.keyStatus.innerHTML = "🟡 已保存 " + usable.length + " 个配置，但<b>尚未验证真实可用</b>。请点「💾 保存并自检」完成验证（通过后状态条变绿）；若失败，请按提示核对 API Key / Base URL / 模型名。";
+      els.keyStatus.innerHTML = "⚠ 已保存 " + usable.length + " 个配置，但<b>尚未验证真实可用</b>。请点「💾 保存并自检」完成验证（通过后状态条变绿）；若失败，请按提示核对 API Key / Base URL / 模型名。";
     } else if (providers.length) {
       els.keyStatus.className = "key-status warn";
-      els.keyStatus.innerHTML = "⚠ 已保存 " + providers.length + " 个 Key，但均<b>缺少文本生成能力</b>（cap 需含 text）。生成面试材料必须有文本模型，请重新点「💾 保存并自检」。";
+      els.keyStatus.innerHTML = "⚙ 已保存 " + providers.length + " 个 Key，但均<b>缺少文本生成能力</b>（cap 需含 text）。生成面试材料必须有文本模型，请重新点「💾 保存并自检」。";
     } else {
-      els.keyStatus.className = "key-status warn";
-      els.keyStatus.innerHTML = "⚠ 尚未配置 API Key，目前无法生成材料。请按上方引导：「🔑 第 1 步」①选厂商 → ②选模型 → ③粘贴 Key → 点「💾 保存并自检」，状态条变绿即完成。";
+      els.keyStatus.className = "key-status info";
+      els.keyStatus.innerHTML = "ℹ 尚未配置 API Key，目前无法生成材料。请按上方引导：「🔑 第 1 步」①选厂商 → ②选模型 → ③粘贴 Key → 点「💾 保存并自检」，状态条变绿即完成。";
     }
   }
   async function loadProviders() {
@@ -907,7 +918,11 @@
       // 直接删除，通过顶部 toast 给出确认反馈
       try {
         const d = await api("/api/providers/" + encodeURIComponent(b.dataset.name), { method: "DELETE" });
+        state.providers = d.providers; // BUG-003 修复：删除后同步 state + 刷新主状态条，避免停留在旧状态
         renderProviders(d.providers);
+        renderKeyStatus();
+        // 同步清理该 provider 的验证标记，避免残留记录与"已删除"状态冲突
+        try { const v = getVerified(); if (v[b.dataset.name]) { delete v[b.dataset.name]; localStorage.setItem("msa_verified", JSON.stringify(v)); } } catch (e2) {}
         toast("已删除 provider「" + b.dataset.name + "」");
       } catch (e) { toast(e.message); }
     }));
@@ -916,7 +931,9 @@
       el.textContent = "自检中…";
       el.className = "mini";
       try {
-        const d = await api("/api/providers/" + encodeURIComponent(b.dataset.name) + "/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+        // P3-1 修复：抽屉"自检"改为真实最小请求（real:true），"✓ 可用"必须真实连通；原 {} 仅配置校验会误报
+        const d = await api("/api/providers/" + encodeURIComponent(b.dataset.name) + "/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: '{"real":true}' });
+        if (d.ok) markVerified(b.dataset.name);
         el.textContent = d.ok ? "✓ 可用" : "✗ " + (d.detail || d.error || "不可用");
         el.className = "mini " + (d.ok ? "ok" : "err");
       } catch (e) {
