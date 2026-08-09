@@ -668,7 +668,9 @@
       while (ctl && ctl.nodeType === 1 && ctl.tagName !== "INPUT" && ctl.tagName !== "SELECT" && ctl.tagName !== "TEXTAREA") {
         ctl = ctl.nextElementSibling;
       }
-      if (ctl && ctl.id && (ctl.tagName === "INPUT" || ctl.tagName === "SELECT" || ctl.tagName === "TEXTAREA")) {
+      // 排除 type=file：避免「简历上传」label 自动关联到隐藏的 file input，
+      // 导致整行标签变成文件选择器热区（误触、影响填写岗位名称）
+      if (ctl && ctl.id && (ctl.tagName === "INPUT" || ctl.tagName === "SELECT" || ctl.tagName === "TEXTAREA") && ctl.type !== "file") {
         lb.setAttribute("for", ctl.id);
       }
     });
