@@ -37,7 +37,7 @@ $iscc = $candidates | Select-Object -First 1
 
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
 
-# 2.1 Derive version: Actions 注入的 RELEASE_VERSION（tag，如 v0.4.18）→ 本地 git tag → .iss 默认值
+# 2.1 Derive version: Actions 注入的 RELEASE_VERSION（tag，如 v0.4.19）→ 本地 git tag → .iss 默认值
 $ver = $env:RELEASE_VERSION
 if (-not $ver) {
     Push-Location $root

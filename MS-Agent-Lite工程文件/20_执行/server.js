@@ -24,6 +24,57 @@ const port = 8900;
 const tasks = new Map(); // taskId -> { state, events:[], clients:Set, files:Map, result, input }
 const companyLocks = new Map(); // company -> taskId：同岗位并发互斥（防两任务互踩产物目录）
 
+// ===== 任务持久化（D4 修复）：服务重启 / 进程退出后任务不丢失，taskId 仍可用（状态/日志/重试）=====
+const STORE_PATH = path.join(TOOLS, "_task_store.json");
+const STORE_TTL_MS = 24 * 60 * 60 * 1000; // 磁盘保留：终态任务最多保留 24 小时，启动时清理超期记录
+let _storeTimer = null;
+function saveStore() {
+  // 防抖落盘：SSE 事件密集时合并写，终态/创建后都会触发
+  if (_storeTimer) return;
+  _storeTimer = setTimeout(() => {
+    _storeTimer = null;
+    try {
+      const data = {};
+      for (const [id, t] of tasks) {
+        data[id] = { state: t.state, events: t.events, files: [...t.files.entries()], result: t.result, input: t.input, terminalAt: t.terminalAt || null };
+      }
+      fs.writeFileSync(STORE_PATH, JSON.stringify(data));
+    } catch (e) { console.error("[store] 保存任务状态失败:", e && e.message); }
+  }, 300);
+}
+function loadStore() {
+  try {
+    if (!fs.existsSync(STORE_PATH)) return;
+    const data = JSON.parse(fs.readFileSync(STORE_PATH, "utf8"));
+    const now = Date.now();
+    for (const [id, rec] of Object.entries(data || {})) {
+      if (!rec || typeof rec !== "object" || !/^[0-9a-f]+$/.test(id)) continue;
+      // 磁盘清理：终态任务超 24 小时不再恢复
+      if (rec.terminalAt && now - rec.terminalAt > STORE_TTL_MS) continue;
+      const t = {
+        state: rec.state || "error",
+        events: Array.isArray(rec.events) ? rec.events : [],
+        files: new Map(Array.isArray(rec.files) ? rec.files : []),
+        result: rec.result || null,
+        input: rec.input || null,
+        clients: new Set(), controller: null, ttlTimer: null, terminalAt: rec.terminalAt || null
+      };
+      // 服务重启时原进程内的生成流程已丢失：非终态任务统一置为 error，
+      // 避免「卡在运行中」假象；日志与文件列表保留，仍可对失败文件重试
+      if (!["done", "error", "cancelled"].includes(t.state)) {
+        t.state = "error";
+        t.terminalAt = Date.now();
+        t.events.push({ type: "error", text: "服务已重启，原生成任务中断，请对失败文件重试或重新生成" });
+        t.result = { type: "error", text: "服务已重启，原生成任务中断，请对失败文件重试或重新生成" };
+      }
+      tasks.set(id, t);
+    }
+    // 同步清理磁盘上的过期记录
+    saveStore();
+    if (tasks.size) console.log("[store] 已恢复 " + tasks.size + " 个历史任务");
+  } catch (e) { console.error("[store] 恢复任务状态失败:", e && e.message); }
+}
+
 // 进程级兜底：畸形输入 / 客户端断连等异步异常不退出进程（P0-1 / P0-3 防线）
 process.on("uncaughtException", e => console.error("[uncaughtException]", e && e.message));
 process.on("unhandledRejection", e => console.error("[unhandledRejection]", e && (e && e.message || e)));
@@ -50,10 +101,14 @@ function pushEvent(taskId, evt) {
   if (evt.type === "done" || evt.type === "error" || (evt.type === "step" && evt.status === "cancelled")) {
     for (const client of t.clients) { try { client.res.end(); } catch (e) {} }
     t.clients.clear();
+    t.terminalAt = Date.now(); // 持久化记录终态时间，供启动时磁盘清理（D4）
     // 释放同岗位并发锁（P1-4）
     if (t.input && companyLocks.get(t.input.company) === taskId) companyLocks.delete(t.input.company);
-    if (!t.ttlTimer) t.ttlTimer = setTimeout(() => { tasks.delete(taskId); }, 30 * 60 * 1000);
+    // 内存 TTL 到期删除；磁盘记录保留（_task_store.json），重启后仍可重试（D4 修复）
+    if (!t.ttlTimer) t.ttlTimer = setTimeout(() => { tasks.delete(taskId); saveStore(); }, 30 * 60 * 1000);
   }
+  // 任务状态变化落盘（防抖）：重启后可恢复任务、日志与重试数据（D4 修复）
+  saveStore();
 }
 
 // ================= 工具函数 =================
@@ -263,6 +318,7 @@ async function handleApi(req, res, url) {
     const controller = new AbortController();
     const task = { state: "pending", events: [], clients: new Set(), files: new Map(), result: null, input: body, controller, ttlTimer: null };
     tasks.set(taskId, task);
+    saveStore(); // 创建即落盘：任务还没收到任何事件前就重启，也能在恢复后看到该任务（D4）
     pushEvent(taskId, { type: "step", name: "pending", status: "running" });
 
     // 后台执行
@@ -435,13 +491,28 @@ async function handleApi(req, res, url) {
     } catch (e) { return sendJson(res, 400, { ok: false, error: e.message }); }
   }
 
-  return sendJson(res, 404, { error: "Not Found: " + p });
+  // D4 修复：未匹配的 API 路径返回中文 404，不再输出英文 "Not Found"
+  return sendJson(res, 404, { error: "接口不存在：" + p });
 }
 
 // ================= 静态 + 预览 =================
-function serveStatic(res, filePath, fallback404) {
+function serveStatic(res, filePath) {
   fs.readFile(filePath, (err, data) => {
-    if (err) { res.writeHead(404); res.end("Not Found"); return; }
+    if (err) {
+      // D4 修复：404 不再输出英文 "Not Found"——结果页缺失时给出中文指引页（预览 iframe 内可见），其余文件返回中文 JSON
+      if (/\.html$/i.test(filePath)) {
+        const body = '<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>文件不存在</title></head>' +
+          '<body style="font-family:system-ui,Segoe UI,Microsoft YaHei,sans-serif;background:#f9fafb;color:#1f2937;padding:48px 24px;text-align:center">' +
+          '<h2 style="font-size:20px;margin:0 0 10px">404 · 结果文件不存在</h2>' +
+          '<p style="font-size:14px;color:#6b7280;margin:0 0 6px">该岗位的结果页未生成或已被清理。</p>' +
+          '<p style="font-size:13px;color:#9ca3af;margin:0">请回到生成面板：对失败文件点「重试」，或修改参数后重新一键生成。</p></body></html>';
+        res.writeHead(404, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" });
+        res.end(body); return;
+      }
+      res.writeHead(404, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-cache" });
+      res.end(JSON.stringify({ error: "文件不存在：" + filePath }));
+      return;
+    }
     const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
       ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8",
       ".md": "text/plain; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml" };
@@ -512,6 +583,8 @@ http.createServer((req, res) => {
   }
   return serveStatic(res, safe);
 }).listen(port, "127.0.0.1", () => {
+  // D4 修复：启动时恢复历史任务（_task_store.json），重启后 taskId 仍可查询/重试
+  loadStore();
   console.log("面试助手Agent（MS-Agent-Lite）服务已启动: http://127.0.0.1:" + port + "（仅本机可访问）");
   console.log("已尝试自动打开浏览器；如未打开，请手动访问 http://127.0.0.1:" + port);
   // E-2：自动打开默认浏览器（仅 Windows，失败不影响使用）

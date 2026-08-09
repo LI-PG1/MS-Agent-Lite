@@ -15,19 +15,21 @@ const ROOT = path.resolve(__dirname, "..");
 const TOOLS = __dirname;
 
 // ---------- 生成模板（与 build.js 需要的文件与章节标记严格对齐） ----------
+// D3 修复：所有文件统一 maxTokens 16384（此前仅 02/03/05 为 16384，其余默认 4096）。
+// 长文件（面试主线/05_面经 等）在 4096 下必然截断（DeepSeek 推理 token 也会占用配额），导致章节缺失。
 const FILES = [
-  { name: "面试主线", hint: "岗位分析+面试流程+匹配度+策略。必须包含标题 `## 三、匹配度分析` 与文件索引表 `| 文件 | 内容 |`（列出 00_公司背景/面试主线/01~04/附录_数字口径 各一行）。" },
-  { name: "01_自我介绍", hint: "90 秒完整版 + 60 秒精简版自我介绍话术 + 一面策略。主体只用用户简历中的项目。" },
+  { name: "面试主线", maxTokens: 16384, hint: "岗位分析+面试流程+匹配度+策略。必须包含标题 `## 三、匹配度分析` 与文件索引表 `| 文件 | 内容 |`（列出 00_公司背景/面试主线/01~04/附录_数字口径 各一行）。" },
+  { name: "01_自我介绍", maxTokens: 16384, hint: "90 秒完整版 + 60 秒精简版自我介绍话术 + 一面策略。主体只用用户简历中的项目。" },
   { name: "02_项目深挖", maxTokens: 16384, hint: "简历项目 STAR + 追问防守。每个项目标注简历编号；只写用户简历中可讲的项目，简历之外的经历不得作为【项目】出现。" },
   { name: "03_技术场景题", maxTokens: 16384, hint: "领域问题 + 场景案例分析 + 高频题库 + 知识速补（含 C++/Agent/RAG/部署/自动驾驶速补）。" },
-  { name: "04_反问环节", hint: "精选反问问题 + HRBP 面策略。" },
+  { name: "04_反问环节", maxTokens: 16384, hint: "精选反问问题 + HRBP 面策略。" },
   { name: "05_面经分析与面试题库", maxTokens: 16384, hint: "必须严格按下列章节标题组织（build.js 依赖这些标题，缺失会报错）：\n" +
     "`## 一、<公司名> 面试流程与特点`\n`## 二、针对你的面试策略调整`\n`### 2.1 C++ 问题应对`\n`### 2.3 项目深挖的新认知`\n" +
     "`## 三、AI Agent 工程化面试高频题`\n`## 四、RAG 面试高频题`\n`## 五、大模型部署面试高频题`\n`## 六、自动驾驶领域知识速补`\n" +
     "`## 七、面试各阶段策略`\n`### 7.1 一面策略`\n`### 7.2 二面策略`\n`### 7.3 HRBP面策略`\n`## 八、面试核心差异点`\n" +
     "注意：2.1 与 2.3 之间不要插入其他 2.x 小标题（build.js 按此切分）。" },
-  { name: "附录_数字口径", hint: "必须一致的数字口径表 + 常见数字陷阱清单。只从用户简历提取数字，不得新增。" },
-  { name: "00_公司背景", hint: "公司/业务/技术路线/发展方向（build.js 不读此文件、优先用岗位画像，仅作人工参考）。其中「公司概况」必须包含：公司官网网址，以及主要业务线官网网址（如官网/产品站/开发者中心等）；无法确认真实网址时，标注『（以官网为准）』，禁止编造网址。" }
+  { name: "附录_数字口径", maxTokens: 16384, hint: "必须一致的数字口径表 + 常见数字陷阱清单。只从用户简历提取数字，不得新增。" },
+  { name: "00_公司背景", maxTokens: 16384, hint: "公司/业务/技术路线/发展方向（build.js 不读此文件、优先用岗位画像，仅作人工参考）。其中「公司概况」必须包含：公司官网网址，以及主要业务线官网网址（如官网/产品站/开发者中心等）；无法确认真实网址时，标注『（以官网为准）』，禁止编造网址。" }
 ];
 
 // 组件化提示（SOP-01）：FILES 的 hint 与组件框架合并——结构固化一次维护，所有公司/岗位复用，
@@ -499,12 +501,19 @@ async function runGenerate(input, handlers = {}) {
   }
 
   const overallOk = build && build.ok && verify && verify.ok;
-  onProgress({ type: "done", ok: overallOk, build: build && build.ok, verify: verify && verify.ok,
+  // D4 修复：HTML 渲染失败时不下发 previewUrl——否则结果区预览会指向不存在的文件，显示 "Not Found"
+  if (!build || !build.ok) {
+    onProgress({ type: "log", text: "⚠ HTML 渲染失败：结果页未生成，请在结果区对失败文件点「重试」（重试成功会自动重新构建 HTML）" });
+  }
+  const doneEvt = { type: "done", ok: overallOk, build: build && build.ok, verify: verify && verify.ok,
     check: check && check.ok, checkOutput: check && check.output,
     needsVerify,
-    previewUrl: "/preview/" + encodeURIComponent(comp) + "/" + encodeURIComponent(comp) + "面试准备.html",
     // 结果文件完整保存路径（弹窗提示小白用户找文件用）
-    resultPath: path.join(outDir, comp + "面试准备.html") });
+    resultPath: path.join(outDir, comp + "面试准备.html") };
+  if (build && build.ok) {
+    doneEvt.previewUrl = "/preview/" + encodeURIComponent(comp) + "/" + encodeURIComponent(comp) + "面试准备.html";
+  }
+  onProgress(doneEvt);
   return { ok: overallOk, files: results, build, verify, check, needsVerify };
 }
 

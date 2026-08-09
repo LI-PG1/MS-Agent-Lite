@@ -617,7 +617,21 @@
       appendLog(evt.text);
     } else if (evt.type === "done") {
       setProgress(100, "完成");
+      state.previewUrl = evt.previewUrl || null; // D4：供重试重建成功后刷新预览用
       finishTask(evt);
+    } else if (evt.type === "build") {
+      // D4：单文件重试后服务端重跑 build——重建成功即刷新结果区预览（此前会一直停在"未生成结果页"）
+      if (evt.ok && state.company) {
+        const u = "/preview/" + encodeURIComponent(state.company) + "/" + encodeURIComponent(state.company) + "面试准备.html";
+        els.previewEmpty.style.display = "none";
+        els.previewFrame.style.display = "block";
+        els.previewFrame.src = u + "?t=" + Date.now();
+        appendLog("✓ HTML 重建成功，结果页已刷新");
+      } else {
+        appendLog("✗ HTML 重建失败：" + (evt.detail || "未知原因"));
+      }
+    } else if (evt.type === "verify") {
+      setBadge(els.verifyBadge, evt.ok ? "ok" : "fail", evt.ok ? "verify PASS" : "verify FAIL");
     } else if (evt.type === "error") {
       setBadge(els.taskBadge, "fail", "失败");
       appendLog("✗ " + (evt.text || "未知错误"));
@@ -693,6 +707,13 @@
       els.previewEmpty.style.display = "none";
       els.previewFrame.style.display = "block";
       els.previewFrame.src = evt.previewUrl;
+    } else {
+      // D4 修复：build 失败时服务端不再下发 previewUrl——结果区显示中文指引，不再出现英文 Not Found
+      els.previewEmpty.style.display = "block";
+      els.previewFrame.style.display = "none";
+      els.previewEmpty.textContent = ok
+        ? "结果页预览：请点击下方文件列表中的 HTML 文件名打开"
+        : "未生成结果页（生成或渲染失败）：请查看上方日志定位原因，并对失败文件点「重试」";
     }
     // 内容审核结果（LLM 对照基准的审核，check: true=通过 false=告警 null=未执行）
     // + 联网核实清单（v0.4.9）：生成文件标注的【待联网核实】时效信息项，提示人工核对来源
@@ -759,6 +780,7 @@
       return;
     }
     const company = els.inpCompany.value.trim();
+    state.company = company; // D4：重试重建成功后据此计算结果页预览地址
     const jdText = els.inpJd.value.trim();
     const jdUrl = els.inpJdUrl.value.trim();
     // R9 必填项集中校验：红字指出缺失项 + 定位到第一个缺失字段（滚动到可视区并红框高亮，让用户一眼看到该改哪）
