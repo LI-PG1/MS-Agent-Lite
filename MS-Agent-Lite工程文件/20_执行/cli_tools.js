@@ -1,5 +1,5 @@
 // cli_tools.js — 本地 CLI 工具适配层（P0：探测 + 统一调用）
-// 定位：让 MS-Agent 可选地利用本地 CLI（markitdown / mineru / rapidocr 等）：
+// 定位：让面试准备助手可选地利用本地 CLI（markitdown / mineru / rapidocr 等）：
 //   1. PDF/DOCX → 结构化 Markdown（替代 pdfjs/mammoth 的纯文本抽取，降 token）
 //   2. 图片 → 文字（本地 OCR，解耦"视觉依赖多模态 provider"）
 // 原则：CLI 全部为"可选增强"——工具缺失时调用方回退原实现，绝不阻塞主流程。

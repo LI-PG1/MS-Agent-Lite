@@ -1,5 +1,5 @@
 // ocr_js.js — 纯 JS 本地 OCR 引擎（onnxruntime-node + PP-OCRv4 轻量模型）
-// 定位：MS-Agent 内置离线 OCR——开箱即用（模型打包进仓库 assets/ocr，无需 Python、无需额外下载），
+// 定位：面试准备助手内置离线 OCR——开箱即用（模型打包进仓库 assets/ocr，无需 Python、无需额外下载），
 //       为纯文本模型（如 DeepSeek）提供本地"看图读字"能力，解耦对多模态 provider 的依赖。
 // 依赖：onnxruntime-node（npm，含 Windows 预编译二进制）、@napi-rs/canvas（项目既有，图像解码/渲染）。
 // 用法：
@@ -264,7 +264,7 @@ async function selfTest() {
   ctx.fillRect(0, 0, 760, 220);
   ctx.fillStyle = "#000";
   ctx.font = "34px Microsoft YaHei, SimHei, sans-serif";
-  ctx.fillText("MS-Agent 本地 OCR 引擎自测", 24, 70);
+  ctx.fillText("面试准备助手 本地 OCR 引擎自测", 24, 70);
   ctx.fillText("Resume PDF OCR 2026-08-06", 24, 140);
   ctx.fillText("中文识别 quality 测试 line3", 24, 200);
   fs.writeFileSync(tmp, canvas.toBuffer("image/png"));

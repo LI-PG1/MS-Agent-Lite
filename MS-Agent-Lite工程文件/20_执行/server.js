@@ -585,7 +585,7 @@ http.createServer((req, res) => {
 }).listen(port, "127.0.0.1", () => {
   // D4 修复：启动时恢复历史任务（_task_store.json），重启后 taskId 仍可查询/重试
   loadStore();
-  console.log("面试助手Agent（MS-Agent-Lite）服务已启动: http://127.0.0.1:" + port + "（仅本机可访问）");
+  console.log("面试准备助手（纯文本版）服务已启动: http://127.0.0.1:" + port + "（仅本机可访问）");
   console.log("已尝试自动打开浏览器；如未打开，请手动访问 http://127.0.0.1:" + port);
   // E-2：自动打开默认浏览器（仅 Windows，失败不影响使用）
   try {

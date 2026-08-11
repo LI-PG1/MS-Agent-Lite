@@ -1,5 +1,5 @@
 @echo off
-title 面试助手Agent（MS-Agent-Lite）一键启动
+title 面试准备助手（纯文本版）一键启动
 setlocal
 rem 本文件位于发布包第一层，先进入工程文件目录
 cd /d "%~dp0MS-Agent-Lite工程文件"
@@ -7,7 +7,7 @@ set PORT=8900
 set "RUNTIME=%~dp0runtime"
 
 echo ==================================================
-echo   面试助手Agent（MS-Agent-Lite）一键启动器
+echo   面试准备助手（纯文本版）一键启动器
 echo   - 本地服务地址：http://127.0.0.1:%PORT%/
 echo   - 数据仅保存在本机，请放心使用
 echo ==================================================
@@ -60,7 +60,7 @@ if not errorlevel 1 goto OPEN
 
 rem ---------- 3) 后台启动服务（最小化窗口，便于日后关闭） ----------
 echo [3/4] 正在启动本地服务，请稍候...
-start "MS-Agent服务" /min "%NODE_EXE%" 20_执行\server.js
+start "面试准备助手服务" /min "%NODE_EXE%" 20_执行\server.js
 
 rem 轮询等待端口就绪（最多 20 秒）
 set /a N=0
@@ -91,7 +91,7 @@ start "" "http://127.0.0.1:%PORT%/"
 echo.
 echo 已自动打开浏览器；如未打开，请手动访问：http://127.0.0.1:%PORT%/
 echo.
-echo 使用完可在任务栏找到"MS-Agent服务"最小化窗口并关闭它来停止服务。
+echo 使用完可在任务栏找到"面试准备助手服务"最小化窗口并关闭它来停止服务。
 echo （关闭本窗口不影响服务运行）
 echo.
 timeout /t 8 /nobreak >nul

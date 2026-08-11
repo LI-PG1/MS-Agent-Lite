@@ -1,4 +1,4 @@
-// app.js — 面试助手Agent（MS-Agent-Lite）面板前端逻辑（原生 JS，零构建）
+// app.js — 面试准备助手（纯文本版）面板前端逻辑（原生 JS，零构建）
 (function () {
   "use strict";
 
@@ -12,7 +12,7 @@
       '<p style="margin:0 0 10px">当前是直接双击打开（file:// 协议），<b>缺少本地 Node 服务</b>，简历上传、生成等功能均无法使用。</p>' +
       '<p style="margin:0 0 14px"><b>正确启动方式（任选其一）：</b></p>' +
       '<ol style="margin:0 0 16px;padding-left:22px">' +
-      '<li><b>双击启动器</b>：进入发布包第一层，双击 <code>启动面试助手Agent.bat</code>——自动检查 Node、启动服务并打开浏览器（免终端）。</li>' +
+      '<li><b>双击启动器</b>：进入发布包第一层，双击 <code>启动面试准备助手.bat</code>——自动检查 Node、启动服务并打开浏览器（免终端）。</li>' +
       '<li><b>命令行启动</b>：打开终端，进入 <code>MS-Agent-Lite工程文件\\20_执行</code> 目录，执行 <code>npm install</code>（首次）后 <code>npm start</code>。</li>' +
       '</ol>' +
       '<p style="margin:0;font-size:13px;color:#6b7280">服务启动后请访问 <code>http://localhost:8900/</code>，在该页面内进行上传与生成。</p>' +
@@ -78,9 +78,11 @@
       name: "deepseek", label: "DeepSeek",
       baseUrl: "https://api.deepseek.com/v1/chat/completions",
       keySample: "sk-...",
+      // 命名规范：id 为通用显示名（界面展示），apiId 为官方 API 模型名（请求发送），二者分离
+      // DeepSeek 真实模型名：deepseek-v4-flash / deepseek-v4-pro；deepseek-chat / deepseek-reasoner 为历史兼容别名（勿用作 apiId）
       models: [
-        { id: "deepseek-v4-flash", note: "低成本、新用户送额度，日常够用" },
-        { id: "deepseek-v4-pro", note: "更强推理，成本更高" }
+        { id: "DeepSeek-V4-Flash", apiId: "deepseek-v4-flash", note: "低成本、新用户送额度，日常够用" },
+        { id: "DeepSeek-V4-Pro", apiId: "deepseek-v4-pro", note: "更强推理，成本更高" }
       ]
     },
     zhipu: {
@@ -154,10 +156,8 @@
       baseUrl: "https://api.moonshot.cn/v1/chat/completions",
       keySample: "sk-...",
       models: [
-        { id: "moonshot-v1-8k", note: "短上下文，最便宜" },
-        { id: "moonshot-v1-32k", note: "中等上下文" },
-        { id: "moonshot-v1-128k", note: "长上下文" },
-        { id: "kimi-latest", note: "最新模型" }
+        { id: "kimi-k2.6", note: "现役通用模型，256K 上下文" },
+        { id: "kimi-k3", note: "旗舰模型，1M 上下文" }
       ]
     },
     minimax: {
@@ -259,13 +259,16 @@
       : "";
   }
   // 选中的模型同步到「⑤ 模型名」输入框，并把 API Key 输入框提示换为该厂商 + 该模型的示例（v0.4.16）
+  // 命名规范：输入框填入官方 API 名（apiId），下拉与提示展示通用显示名（id）
   function applyModel() {
     const p = PRESETS[els.selPreset.value];
-    const m = els.selModel.value;
-    if (m) els.kpModel.value = m;
-    els.kpModel.placeholder = m ? "" : "如 glm-4-flash（从平台「模型列表 / 接入文档」复制）";
+    const sel = els.selModel.value;
+    const m = (p.models || []).find(x => x.id === sel);
+    const apiModel = (m && m.apiId) || sel;
+    if (sel) els.kpModel.value = apiModel;
+    els.kpModel.placeholder = sel ? "" : "如 glm-4-flash（从平台「模型列表 / 接入文档」复制）";
     els.kpKey.placeholder = p
-      ? "粘贴 " + (p.label || p.name) + " API Key（" + (p.keySample || "控制台创建") + "）· 模型 " + (m || "待选")
+      ? "粘贴 " + (p.label || p.name) + " API Key（" + (p.keySample || "控制台创建") + "）· 模型 " + (sel || "待选")
       : "sk-... 或 xxxx.yyyy（完整密钥）";
   }
   function applyPreset() {
@@ -282,7 +285,8 @@
       o.textContent = m.note ? m.id + "（" + m.note + "）" : m.id;
       sel.appendChild(o);
     });
-    if (prev && (p.models || []).some(m => m.id === prev)) sel.value = prev;
+    const hit = (p.models || []).find(m => m.id === prev || m.apiId === prev);
+    if (hit) sel.value = hit.id;
     applyModel();
     updatePresetHint();
   }

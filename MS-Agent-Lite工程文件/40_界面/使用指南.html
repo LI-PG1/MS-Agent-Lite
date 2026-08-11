@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>面试助手Agent（MS-Agent-Lite）交互式安装使用指南</title>
+<title>面试准备助手（纯文本版）交互式安装使用指南</title>
 <style>
   :root{
     --ink:#0f172a; --ink-soft:#475569; --ink-dim:#94a3b8;
@@ -117,7 +117,7 @@
 
 <main>
   <header class="hero">
-    <h1>📘 面试助手Agent（MS-Agent-Lite）交互式安装使用指南</h1>
+    <h1>📘 面试准备助手（纯文本版）交互式安装使用指南</h1>
     <p class="sub">上传简历 + 岗位 JD，一键生成专属的面试准备材料（一个网页文件）：自我介绍、项目深挖、面试题库、反问环节等，可打印、可随时复习。全程零代码，跟着下面的步骤走即可。</p>
     <div class="caps">
       <span class="cap">零代码</span><span class="cap">仅 Windows</span><span class="cap">自配 API</span>
@@ -127,18 +127,18 @@
     <p class="save-tip" style="display:block;margin-top:8px">🔢 <b>步骤编号对照</b>：本页与《新手安装使用指南.md》内容一致；因 Markdown 版多了一个「第 0 步 先搞懂」，<b>本页第 N 步 = Markdown 版第 N-1 步</b>（如「填 API Key」：本页第 5 步 = 文字版第 4 步）。任选一份照做即可。</p>
   </header>
 
-  <!-- 1 认识MS-Agent-Lite -->
+  <!-- 1 认识面试准备助手 -->
   <section class="sec" data-step="1" id="s1">
-    <h2><span class="step-no">1</span>认识面试助手Agent（MS-Agent-Lite）</h2>
+    <h2><span class="step-no">1</span>认识面试准备助手</h2>
     <p class="desc">先用 30 秒搞懂它能干什么，再动手装。</p>
     <ul>
       <li><b>输入</b>：你的简历（pdf / word / txt / markdown）+ 岗位 JD（职位介绍）+ 可选的参考网址 / 参考信息（面经、公司背景、技术文章等文字）</li>
       <li><b>输出</b>：一份完整的「<b>岗位名称+面试准备.html</b>」网页材料（自我介绍、项目深挖、技术题库、反问环节等 8 个部分）</li>
-      <li><b>工作方式</b>：你配置的大模型负责生成内容，MS-Agent-Lite在本地处理文件与网页、生成并预览材料</li>
+      <li><b>工作方式</b>：你配置的大模型负责生成内容，面试准备助手在本地处理文件与网页、生成并预览材料</li>
       <li><b>适合谁</b>：零编程经验也能装。需要准备 3 样：Windows 电脑、一个或两个大模型 API Key（第 2 步教怎么拿）、项目文件（第 3 步下载）</li>
     </ul>
     <h3>整体流程一览</h3>
-    <div class="flow">拿 API Key → 下载项目 → 双击 启动面试助手Agent.bat（首次自动解压内置运行环境）
+    <div class="flow">拿 API Key → 下载项目 → 双击 启动面试准备助手.bat（首次自动解压内置运行环境）
     → 浏览器自动打开 → 填 API Key → 上传简历 + 填 JD → 一键生成 → 审核通过 ✓</div>
     <div class="note">📌 全程不需要写代码、不需要自己安装 Node.js。遇到问题先看第 7 步 FAQ，或按错误提示操作。</div>
   </section>
@@ -146,7 +146,7 @@
   <!-- 2 API Key -->
   <section class="sec" data-step="2" id="s2">
     <h2><span class="step-no">2</span>拿到「大模型钥匙」API Key</h2>
-    <p class="desc">MS-Agent-Lite调用大模型需要一把"钥匙"。建议最先做这步，因为部分平台要审核。点击下面的链接可直达各平台，每个平台都附有详细的领取步骤。</p>
+    <p class="desc">面试准备助手调用大模型需要一把"钥匙"。建议最先做这步，因为部分平台要审核。点击下面的链接可直达各平台，每个平台都附有详细的领取步骤。</p>
     <table>
       <tr><th>服务商</th><th>官网</th><th>说明</th></tr>
       <tr><td>智谱 AI</td><td><a href="https://open.bigmodel.cn" target="_blank" rel="noopener">open.bigmodel.cn ↗</a></td><td>有长期免费文本模型 <code class="inline">glm-4-flash</code>，低成本实现（本版只需文本模型）</td></tr>
@@ -163,7 +163,7 @@
           <li>进入「个人中心 → API Keys」，点「新建 API Key」</li>
           <li>生成后<b>立即复制保存</b>（只显示一次），并对照记下模型名与 Base URL</li>
         </ol>
-        <p>低成本实现：模型 <code class="inline">glm-4-flash</code>（长期免费）或 <code class="inline">deepseek-v4-flash</code>；Base URL <code class="inline">https://open.bigmodel.cn/api/paas/v4/chat/completions</code>；能力选择「文本能力模型」。</p>
+        <p>低成本实现：模型 <code class="inline">glm-4-flash</code>（长期免费）或选 <b>DeepSeek-V4-Flash</b>（页面「① 厂商 → ② 选择模型」选中即自动填好）；Base URL <code class="inline">https://open.bigmodel.cn/api/paas/v4/chat/completions</code>；能力选择「文本能力模型」。</p>
       </div>
     </details>
     <details>
@@ -187,7 +187,7 @@
           <li>进入「API Keys」，点「Create API Key」，起个名字（如 ms-agent）</li>
           <li>生成后<b>立即复制</b>——Key 只显示一次，关闭就看不到了</li>
         </ol>
-        <p>低成本实现：模型 <code class="inline">deepseek-v4-flash</code>（价格低、Agent 能力强，新用户送免费额度）；Base URL <code class="inline">https://api.deepseek.com/v1/chat/completions</code>；能力选择「文本能力模型」——本版只需一个文本模型。</p>
+        <p>低成本实现：模型选 <b>DeepSeek-V4-Flash</b>（价格低、Agent 能力强，新用户送免费额度；页面「① 厂商 → ② 选择模型」选中即自动填好）；Base URL <code class="inline">https://api.deepseek.com/v1/chat/completions</code>；能力选择「文本能力模型」——本版只需一个文本模型。</p>
       </div>
     </details>
 
@@ -209,15 +209,15 @@
     <h3>方式 B：用 git 命令下载（可选，想长期更新用这个）</h3>
     <div class="term">💻 终端操作：① 按 <b>Win + R</b>，输入 <code class="inline">cmd</code>，回车 ② 复制下面这行命令 ③ 在黑色窗口里右键粘贴，按<b>回车</b>执行。</div>
     <pre>git clone https://github.com/LI-PG1/MS-Agent-Lite.git D:\MS-Agent-Lite</pre>
-    <div class="note">📌 解压后记下路径，本文统一以 <code class="inline">D:\MS-Agent-Lite</code> 为例（即能看到 <code class="inline">MS-Agent-Lite工程文件</code> 文件夹和 <code class="inline">启动面试助手Agent.bat</code> 的那一层）。</div>
+    <div class="note">📌 解压后记下路径，本文统一以 <code class="inline">D:\MS-Agent-Lite</code> 为例（即能看到 <code class="inline">MS-Agent-Lite工程文件</code> 文件夹和 <code class="inline">启动面试准备助手.bat</code> 的那一层）。</div>
     <div class="ok">✔ 检查：打开文件夹能看到 <code class="inline">MS-Agent-Lite工程文件</code> 子文件夹。</div>
   </section>
 
   <!-- 4 启动 -->
   <section class="sec" data-step="4" id="s4">
-    <h2><span class="step-no">4</span>启动MS-Agent-Lite</h2>
+    <h2><span class="step-no">4</span>启动面试准备助手</h2>
     <p class="desc">以后每次使用都这样做：双击启动器 → 浏览器自动打开。<b>无需自己安装 Node.js</b>。</p>
-    <div class="ok">✅ <b>双击启动器（最简单）</b> —— 打开发布包第一层（项目根目录）<code class="inline">D:\MS-Agent-Lite</code>，找到 <b><code class="inline">启动面试助手Agent.bat</code></b>，双击即可。<b>首次启动</b>会自动解压内置的 Node.js 与依赖包（约 1~2 分钟，仅此一次，期间不要关窗口），随后自动启动本地服务并打开浏览器 <code class="inline">http://localhost:8900/</code>；若没自动打开，手动访问 <code class="inline">http://127.0.0.1:8900</code> 即可。之后每次启动都是秒开。</div>
+    <div class="ok">✅ <b>双击启动器（最简单）</b> —— 打开发布包第一层（项目根目录）<code class="inline">D:\MS-Agent-Lite</code>，找到 <b><code class="inline">启动面试准备助手.bat</code></b>，双击即可。<b>首次启动</b>会自动解压内置的 Node.js 与依赖包（约 1~2 分钟，仅此一次，期间不要关窗口），随后自动启动本地服务并打开浏览器 <code class="inline">http://localhost:8900/</code>；若没自动打开，手动访问 <code class="inline">http://127.0.0.1:8900</code> 即可。之后每次启动都是秒开。</div>
     <div class="term">💻 <b>手动方式（可选）</b>：如果你已经自行安装了 Node.js，也可以在终端进入 <code class="inline">MS-Agent-Lite工程文件\20_执行</code> 后运行 <code class="inline">npm start</code>（首次需先 <code class="inline">npm install</code>）。</div>
     <div class="ok">✔ 检查：看到 <code class="inline">服务已启动: http://127.0.0.1:8900</code> 字样即成功。</div>
     <div class="warn">⚠ 用完想关闭：双击启动的服务在后台运行，直接关浏览器即可（下次双击自动复用/重启）；手动方式启动的回到终端按 <b>Ctrl + C</b>（问 Y/N 就按 Y 回车）。</div>
@@ -225,16 +225,16 @@
 
   <!-- 5 配 Key -->
   <section class="sec" data-step="5" id="s5">
-    <h2><span class="step-no">5</span>把 API Key 填进MS-Agent-Lite</h2>
-    <p class="desc">MS-Agent-Lite已经把"配钥匙"做成了主页面第 1 步，照着填即可：</p>
-    <div class="flow">打开MS-Agent-Lite页面 → 第 1 步「大模型 API Key」→ 选平台（自动填 Base URL / 模型）→ 粘贴 Key → 保存并自检 → ✓ 配置成功</div>
+    <h2><span class="step-no">5</span>把 API Key 填进面试准备助手</h2>
+    <p class="desc">面试准备助手已经把"配钥匙"做成了主页面第 1 步，照着填即可：</p>
+    <div class="flow">打开面试准备助手页面 → 第 1 步「大模型 API Key」→ 选平台（自动填 Base URL / 模型）→ 粘贴 Key → 保存并自检 → ✓ 配置成功</div>
     <ol>
-      <li>先做<b>第 4 步</b>启动MS-Agent-Lite，浏览器打开 <code class="inline">http://127.0.0.1:8900</code></li>
+      <li>先做<b>第 4 步</b>启动面试准备助手，浏览器打开 <code class="inline">http://127.0.0.1:8900</code></li>
       <li>页面顶部就是第 1 步「大模型 API Key」卡片：在「选择平台」里选你第 2 步注册的服务商（如智谱 AI），名称 / Base URL / 模型会自动填好</li>
       <li>把第 2 步复制好的 <b>API Key</b> 粘贴到「⑥ API Key」输入框</li>
       <li>点「💾 保存并自检」→ 显示「✓ 已保存并自检通过」、顶部状态条变绿「✓ API Key 已配置成功」即成功</li>
     </ol>
-    <div class="note">📌 能力选择：本版只需文本能力（界面默认「文本能力模型」即可），识图由MS-Agent-Lite内置的本地离线识别自动处理，无需视觉模型。备选：直接编辑 <code class="inline">D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行\config.json</code> 里的 apiKey（注意保留英文引号），拿不准就用页面方式。</div>
+    <div class="note">📌 能力选择：本版只需文本能力（界面默认「文本能力模型」即可），识图由面试准备助手内置的本地离线识别自动处理，无需视觉模型。备选：直接编辑 <code class="inline">D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行\config.json</code> 里的 apiKey（注意保留英文引号），拿不准就用页面方式。</div>
   </section>
 
   <!-- 6 使用 -->
@@ -272,7 +272,7 @@
 
     <details open>
       <summary>为什么需要 1 个或 2 个 API Key？</summary>
-      <div class="faq-body">生成面试材料只需要 <b>1 个</b>支持文本（text）的模型 Key，例如智谱 <code class="inline">glm-4-flash</code> 或 <code class="inline">deepseek-v4-flash</code>。图片 / 扫描件中的文字由MS-Agent-Lite内置的本地离线识别自动处理，无需视觉模型。</div>
+      <div class="faq-body">生成面试材料只需要 <b>1 个</b>支持文本（text）的模型 Key，例如智谱 <code class="inline">glm-4-flash</code> 或选 <b>DeepSeek-V4-Flash</b>（页面选择模型时自动填好配置）。图片 / 扫描件中的文字由面试准备助手内置的本地离线识别自动处理，无需视觉模型。</div>
     </details>
     <details>
       <summary>材料里出现【待联网核实：…】标注怎么办？</summary>
@@ -328,14 +328,14 @@
     <div class="ok">🙏 感谢使用本工具，祝你面试顺利！</div>
   </section>
 
-  <footer>🎉 完成以上步骤，你就可以每天用它准备面试了。祝面试顺利！<br>日常三连：双击发布包第一层的 <code class="inline">启动面试助手Agent.bat</code> → 浏览器自动打开 → 填 Key 上传简历一键生成 → 关浏览器即可（手动方式：Win+R → cmd → cd /d D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行 → npm start）</footer>
+  <footer>🎉 完成以上步骤，你就可以每天用它准备面试了。祝面试顺利！<br>日常三连：双击发布包第一层的 <code class="inline">启动面试准备助手.bat</code> → 浏览器自动打开 → 填 Key 上传简历一键生成 → 关浏览器即可（手动方式：Win+R → cmd → cd /d D:\MS-Agent-Lite\MS-Agent-Lite工程文件\20_执行 → npm start）</footer>
 </main>
 
 <script>
 (function(){
   "use strict";
   var STEPS = [
-    {id:"s1",  label:"认识MS-Agent-Lite"},
+    {id:"s1",  label:"认识面试准备助手"},
     {id:"s2",  label:"API Key"},
     {id:"s3",  label:"下载项目"},
     {id:"s4",  label:"启动"},

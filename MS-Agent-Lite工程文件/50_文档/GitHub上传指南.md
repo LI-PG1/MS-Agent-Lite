@@ -1,8 +1,8 @@
 # GitHub 上传指南（纯小白版）
 
-> 目标：把 MS-Agent 从你的电脑传到 GitHub，让其他人（或你自己换电脑时）能下载使用。
+> 目标：把 面试准备助手（纯文本版）从你的电脑传到 GitHub，让其他人（或你自己换电脑时）能下载使用。
 > 全程英文网页界面，本文把每个按钮的英文和中文意思都标出来。
-> 预计 20~30 分钟。**前提**：已在本地跑通一次——拿到 API Key、能双击「启动面试助手Agent.bat」打开面板（见《新手安装使用指南》第 1~4 步）。
+> 预计 20~30 分钟。**前提**：已在本地跑通一次——拿到 API Key、能双击「启动面试准备助手.bat」打开面板（见《新手安装使用指南》第 1~4 步）。
 
 ---
 
@@ -40,7 +40,7 @@ git --version
 MS-Agent-Lite\（上传后别人会看到这些）
 ├── README.md                  # 项目说明书（首页展示的文字）
 ├── .gitignore                 # Git 黑名单：config.json / 简历 / 生成材料 / node_modules / 解压产物 自动不上传
-├── 启动面试助手Agent.bat      # 双击启动软件（免装 Node，首次自动解压运行环境）
+├── 启动面试准备助手.bat      # 双击启动软件（免装 Node，首次自动解压运行环境）
 ├── runtime\                   # ✅ 内置便携版 Node.js（node.zip）与依赖包切片（node_modules.zip.part1~3）
 └── MS-Agent-Lite工程文件\
     ├── 新手安装使用指南.md      # 新手教程
@@ -197,7 +197,7 @@ GitHub 从 2021 年起**不允许用账号密码**推送，要用一个叫 **Tok
 ## 第 6 步 验证上传成功
 
 1. 浏览器打开 `https://github.com/你的用户名/MS-Agent-Lite`
-2. 确认能看到：`README.md`、`runtime` 文件夹、`MS-Agent-Lite工程文件` 文件夹、`启动面试助手Agent.bat` 等
+2. 确认能看到：`README.md`、`runtime` 文件夹、`MS-Agent-Lite工程文件` 文件夹、`启动面试准备助手.bat` 等
 3. 点进 `runtime`，确认能看到 `node.zip` 和 `node_modules.zip.part1/2/3`（GitHub 单文件限制 100MB，已拆 3 片）
 4. 点进 `MS-Agent-Lite工程文件\20_执行`，确认能看到 `config.example.json`、**看不到** `config.json` 和 `node_modules`
 5. 都对了 → 别人就能按《新手安装使用指南》从你的仓库下载使用了 🎉

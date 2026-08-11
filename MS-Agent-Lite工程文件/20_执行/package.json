@@ -1,7 +1,7 @@
 {
   "name": "ms-agent-lite",
-  "version": "0.1.0",
-  "description": "面试助手Agent（MS-Agent-Lite 纯文本版）面板（JD + 简历 → 面试准备材料）",
+  "version": "0.4.19",
+  "description": "面试准备助手（纯文本版）面板（JD + 简历 → 面试准备材料）",
   "scripts": {
     "start": "node server.js",
     "dryrun": "node gen_material.js --dryrun",

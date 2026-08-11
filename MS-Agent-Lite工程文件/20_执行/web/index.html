@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>面试助手Agent（MS-Agent-Lite） · 面板</title>
+<title>面试准备助手（纯文本版） · 面板</title>
 <style>
   :root{
     --bg:#f2f4f8; --card:#fff; --ink:#1f2937; --ink-soft:#4b5563; --ink-mute:#6b7280;
@@ -265,7 +265,7 @@
 <body>
 
 <div class="topbar">
-  <h1>面试助手Agent（MS-Agent）</h1>
+  <h1>面试准备助手（纯文本版）</h1>
   <span class="tag">简历 + 岗位 JD → 面试准备材料（纯文本版）</span>
   <div class="right">
     <span id="provStatus" style="font-size:12px;color:#9ca3af"></span>
@@ -456,7 +456,7 @@
 
   <!-- 页尾提示：感谢 + 反馈渠道 -->
   <footer style="text-align:center;color:var(--ink-mute);font-size:12px;padding:10px 0 4px;line-height:1.9">
-    感谢使用 MS-Agent（纯文本版），希望能对你的面试有所帮助。如有问题或建议，欢迎随时联系作者：<a href="mailto:llxstupg@163.com" style="color:var(--accent)">llxstupg@163.com</a>
+    感谢使用 面试准备助手（纯文本版），希望能对你的面试有所帮助。如有问题或建议，欢迎随时联系作者：<a href="mailto:llxstupg@163.com" style="color:var(--accent)">llxstupg@163.com</a>
   </footer>
 
 </div>
@@ -465,7 +465,7 @@
 <aside class="rail rail-right" aria-label="操作提示">
   <div class="rail-title">操作提示</div>
   <div class="help-box">
-    <div class="help-title" id="helpTitle">👋 欢迎使用 MS-Agent-Lite</div>
+    <div class="help-title" id="helpTitle">👋 欢迎使用 面试准备助手</div>
     <div class="help-body" id="helpBody">点击 / 聚焦中间任意输入项，右侧会显示该操作的详细说明。</div>
   </div>
   <div class="help-foot" id="helpFoot">使用主线：① 配置 API Key → ② 填写材料 → ③ 一键生成。</div>
@@ -542,13 +542,13 @@
     "use strict";
     var HELP = {
       __default__: {
-        t: "👋 欢迎使用 MS-Agent-Lite",
+        t: "👋 欢迎使用 面试准备助手",
         h: "<p>点击 / 聚焦中间任意输入项，右侧会显示该操作的详细说明。</p><p>使用主线：<b>① 配置 API Key → ② 填写材料 → ③ 一键生成</b>。</p>",
         f: "使用主线：① 配置 API Key → ② 填写材料 → ③ 一键生成。"
       },
       kpKey: {
         t: "🔑 API Key 是什么？",
-        h: "<p><b>作用</b>：MS-Agent-Lite 调用大模型的“钥匙”。没有它，程序无法请求模型生成材料。</p>" +
+        h: "<p><b>作用</b>：面试准备助手 调用大模型的“钥匙”。没有它，程序无法请求模型生成材料。</p>" +
            "<p><b>获取方式</b>：去所选厂商官网注册 → 实名认证 → 进入「控制台 / API 密钥」→ 创建 API Key → 复制。</p>" +
            "<ul><li><b>格式</b>：一长串字符（如 <code>sk-...</code>），需完整粘贴、前后无空格；首次填写，之后可留空。</li>" +
            "<li><b>安全</b>：Key 请勿发到公开渠道 / 群聊，若不慎泄露请立即去平台重置。</li></ul>",

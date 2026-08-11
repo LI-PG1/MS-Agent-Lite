@@ -2,7 +2,7 @@
 // Usage: node vision_analyze.js <imagePath> "[prompt]"
 // Config: 20_执行/config.json (providers array, order = priority)
 //
-// 纯文本版（MS-Agent-Lite）视觉链路（本地 OCR 优先）：
+// 纯文本版（面试准备助手）视觉链路（本地 OCR 优先）：
 //   1. 本地 OCR（内置引擎 ocr_js.js：onnxruntime-node + PP-OCRv4 轻量模型，开箱即用、离线免费）
 //   2. 本地 CLI OCR（cli_tools.js：rapidocr/paddleocr，本机装有 Python 的高级用户可选增强）
 //   3. vision provider（多模态模型 API，仅作兜底：已配置视觉 key 时才可用）
